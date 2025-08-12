@@ -1,0 +1,5 @@
+{
+  "name": "Vet Hidro Eletrolítico",
+  "description": "Uma aplicação web para auxiliar médicos veterinários na reposição hidroeletrolítica de cães e gatos. O aplicativo oferece calculadoras de reposição, um guia de consulta detalhado sobre distúrbios eletrolíticos e um bulário de fármacos, tudo baseado em literatura veterinária atualizada.",
+  "requestFramePermissions": []
+}

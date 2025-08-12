@@ -1,0 +1,9 @@
+/* Arquivo básico para evitar 404 e permitir pequenos ajustes globais */
+html, body, #root {
+  height: 100%;
+}
+body {
+  margin: 0;
+}
+
+
