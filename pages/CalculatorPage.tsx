@@ -2,6 +2,9 @@ import React, { useState, useMemo } from 'react';
 import { PatientInfo, Species, PhysiologicalState, Comorbidity } from '../types';
 import { InfoIcon } from '../components/Tooltip';
 import { POTASSIUM_REPLACEMENT_TABLE_CONTENT } from '../data/content';
+import SodiumCalculator from '../components/SodiumCalculator';
+import PotassiumCalculator from '../components/PotassiumCalculator';
+import CalciumCalculator from '../components/CalciumCalculator';
 
 const infusionTimeTooltipContent = (
     <div className="text-left">
@@ -147,76 +150,21 @@ export const CalculatorPage: React.FC = () => {
                 <h2 className="text-2xl font-bold">2. Cálculo de Reposição</h2>
                  <select value={electrolyte} onChange={e => setElectrolyte(e.target.value)} className={inputClasses + " max-w-xs"}>
                     <option value="potassium">Potássio (K⁺)</option>
-                    <option value="sodium" disabled>Sódio (Na⁺) - em breve</option>
-                    <option value="calcium" disabled>Cálcio (Ca²⁺) - em breve</option>
+                    <option value="sodium">Sódio (Na⁺)</option>
+                    <option value="calcium">Cálcio (Ca²⁺)</option>
                 </select>
             </div>
 
+            {electrolyte === 'calcium' && (
+                <CalciumCalculator />
+            )}
+
             {electrolyte === 'potassium' && (
-                <>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div>
-                        <label className="block font-medium mb-1">Potássio Atual (mEq/L)
-                         <InfoIcon content={POTASSIUM_REPLACEMENT_TABLE_CONTENT} />
-                        </label>
-                        <input type="number" step="0.1" value={currentK} onChange={e => setCurrentK(parseFloat(e.target.value) || 0)} className={inputClasses} />
-                    </div>
-                    <div>
-                        <label className="block font-medium mb-1">Volume do Fluido (mL)
-                          <InfoIcon content="Selecione o volume da bolsa de fluido ou seringa que será utilizada."/>
-                        </label>
-                        <select value={fluidVolume} onChange={e => setFluidVolume(parseInt(e.target.value))} className={inputClasses}>
-                            <option value="10">Seringa 10 mL</option>
-                            <option value="20">Seringa 20 mL</option>
-                            <option value="60">Seringa 60 mL</option>
-                            <option value="250">Bolsa 250 mL</option>
-                            <option value="500">Bolsa 500 mL</option>
-                            <option value="1000">Bolsa 1000 mL</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label className="block font-medium mb-1">Tempo de Infusão (h)
-                            <InfoIcon content={infusionTimeTooltipContent} />
-                        </label>
-                        <input type="number" value={infusionTime} onChange={e => setInfusionTime(parseInt(e.target.value) || 1)} className={inputClasses} />
-                    </div>
-                </div>
-                
-                {calculationResult && (
-                    <div className="mt-8 border-t pt-6 dark:border-gray-600">
-                    <h3 className="text-xl font-bold mb-4">Resultados e Raciocínio Clínico</h3>
-                    
-                    <div className="space-y-4">
-                        <div className="p-4 bg-blue-50 dark:bg-blue-900/50 rounded-lg shadow-inner">
-                            <h4 className="font-bold text-blue-800 dark:text-blue-300">Passo 1: Determinar a Concentração de K⁺</h4>
-                            <p className="mt-2">Com um potássio sérico de <span className="bg-blue-200 dark:bg-blue-800/60 text-blue-900 dark:text-blue-200 px-2 py-1 rounded font-semibold">{currentK}</span> mEq/L, a tabela de reposição segura recomenda uma concentração de <span className="bg-green-200 dark:bg-green-800/60 text-green-900 dark:text-green-200 px-2 py-1 rounded font-semibold">{calculationResult.kToAddPerLiter}</span> mEq de K⁺ por litro de fluido.</p>
-                        </div>
+                <PotassiumCalculator />
+            )}
 
-                        <div className="p-4 bg-green-50 dark:bg-green-900/50 rounded-lg shadow-inner">
-                            <h4 className="font-bold text-green-800 dark:text-green-300">Passo 2: Calcular a Diluição</h4>
-                             <p className="mt-2">Para sua solução de <span className="bg-blue-200 dark:bg-blue-800/60 text-blue-900 dark:text-blue-200 px-2 py-1 rounded font-semibold">{fluidVolume}</span> mL, você precisará de um total de <span className="bg-green-200 dark:bg-green-800/60 text-green-900 dark:text-green-200 px-2 py-1 rounded font-semibold">{calculationResult.totalKToAdd}</span> mEq de K⁺.</p>
-                            <p className="mt-2">Usando <span className="bg-yellow-200 dark:bg-yellow-800/60 text-yellow-900 dark:text-yellow-200 px-2 py-1 rounded font-semibold">KCl 19.1%</span> (que contém {kclConcentration} mEq/mL), o volume a ser adicionado é:</p>
-                            <div className="my-2 p-2 bg-gray-100 dark:bg-gray-800 rounded text-center font-mono">
-                                <code>{calculationResult.totalKToAdd} mEq / {kclConcentration} mEq/mL = <span className="font-bold">{calculationResult.kclVolumeToAdd} mL</span></code>
-                            </div>
-                                                         <p className="font-bold mt-2">Ação: Adicionar <span className="bg-orange-200 dark:bg-orange-800/60 text-orange-900 dark:text-orange-200 px-2 py-1 rounded font-semibold">{calculationResult.kclVolumeToAdd} mL de KCl 19.1%</span> na sua solução de {fluidVolume} mL.</p>
-                        </div>
-                        
-                        <div className={`p-4 rounded-lg shadow-inner ${calculationResult.isSafe ? 'bg-green-100 dark:bg-green-900/60' : 'bg-red-100 dark:bg-red-900/60'}`}>
-                            <h4 className={`font-bold flex items-center gap-2 ${calculationResult.isSafe ? 'text-green-800 dark:text-green-200' : 'text-red-800 dark:text-red-200'}`}>
-                                {calculationResult.isSafe ? <i className="fas fa-check-circle"></i> : <i className="fas fa-exclamation-triangle"></i>}
-                                Passo 3: Checagem de Segurança
-                            </h4>
-                            <p className="mt-2">A infusão será a <span className="bg-blue-200 dark:bg-blue-800/60 text-blue-900 dark:text-blue-200 px-2 py-1 rounded font-semibold">{calculationResult.infusionRateMlHr} mL/hora</span> para terminar em {infusionTime} horas.</p>
-                            <p className="mt-1">Sua taxa de infusão de potássio será de <span className={`${calculationResult.isSafe ? 'bg-green-200 dark:bg-green-800/60 text-green-900 dark:text-green-200' : 'bg-red-200 dark:bg-red-800/60 text-red-900 dark:text-red-200'} px-2 py-1 rounded font-semibold`}>{calculationResult.actualInfusionRateMeqHr} mEq/hora</span>.</p>
-                            <p className="mt-1">A taxa máxima segura para um paciente de {patientInfo.weight} kg é <span className="bg-green-200 dark:bg-green-800/60 text-green-900 dark:text-green-200 px-2 py-1 rounded font-semibold">{calculationResult.patientMaxMeqHr} mEq/hora</span>.</p>
-                            {!calculationResult.isSafe && <p className="mt-2 font-bold text-red-800 dark:text-red-200">Atenção! A taxa de infusão calculada excede o limite de segurança. Aumente o tempo de infusão ou reavalie a concentração de potássio.</p>}
-                        </div>
-
-                    </div>
-                    </div>
-                )}
-                </>
+            {electrolyte === 'sodium' && (
+                <SodiumCalculator />
             )}
         </div>
 

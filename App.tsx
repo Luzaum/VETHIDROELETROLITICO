@@ -5,6 +5,9 @@ import { HomePage } from './pages/HomePage';
 import { GuidePage } from './pages/GuidePage';
 import { CalculatorPage } from './pages/CalculatorPage';
 import { FormularyPage } from './pages/FormularyPage';
+import SodiumGuidePage from './pages/SodiumGuidePage';
+import PotassiumGuidePage from './pages/PotassiumGuidePage';
+import CalciumGuidePage from './pages/CalciumGuidePage';
 import { ThemeToggle } from './components/ThemeToggle';
 import { useTheme } from './context/ThemeContext';
 
@@ -39,6 +42,9 @@ const Header: React.FC = () => {
                             <NavLink to="/" className={getLinkClass('/')}>Início</NavLink>
                             <NavLink to="/calculator" className={getLinkClass('/calculator')}>Calculadora</NavLink>
                             <NavLink to="/guide" className={getLinkClass('/guide')}>Guia</NavLink>
+                            <NavLink to="/sodium-guide" className={getLinkClass('/sodium-guide')}>Guia Sódio</NavLink>
+                            <NavLink to="/potassium-guide" className={getLinkClass('/potassium-guide')}>Guia Potássio</NavLink>
+                            <NavLink to="/calcium-guide" className={getLinkClass('/calcium-guide')}>Guia Cálcio</NavLink>
                             <NavLink to="/formulary" className={getLinkClass('/formulary')}>Bulário</NavLink>
                         </div>
                     </div>
@@ -61,6 +67,9 @@ const App: React.FC = () => {
                         <Route path="/" element={<HomePage />} />
                         <Route path="/guide" element={<GuidePage />} />
                         <Route path="/guide/:topic" element={<GuidePage />} />
+                        <Route path="/sodium-guide" element={<SodiumGuidePage />} />
+                        <Route path="/potassium-guide" element={<PotassiumGuidePage />} />
+                        <Route path="/calcium-guide" element={<CalciumGuidePage />} />
                         <Route path="/calculator" element={<CalculatorPage />} />
                         <Route path="/formulary" element={<FormularyPage />} />
                         <Route path="/formulary/:topic" element={<FormularyPage />} />

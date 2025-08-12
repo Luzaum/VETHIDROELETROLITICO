@@ -1,6 +1,9 @@
 import React from 'react';
 import { ElectrolyteData, FormularyItem, ContentBlock } from '../types';
 import { InfoIcon } from '../components/Tooltip';
+import { SODIUM_GUIDE_CONTENT } from './sodium_guide';
+import { POTASSIUM_GUIDE_CONTENT } from './potassium_guide';
+import { CALCIUM_GUIDE_CONTENT } from './calcium_guide';
 
 // Helper for highlighting text
 const Highlight: React.FC<{color: string, children: React.ReactNode}> = ({ color, children }) => {
@@ -44,156 +47,17 @@ const SODIUM_DATA: ElectrolyteData = {
         dog: "~145–155 mEq/L",
         cat: "~150–160 mEq/L"
     },
-    content: [
-        { type: 'header', content: 'Sódio (Na⁺)' },
-        { type: 'subheader', content: 'Função e Homeostase' },
-        {
-            type: 'paragraph',
-            content: (
-                <>
-                    O sódio é o principal cátion do espaço extracelular e exerce papel-chave na manutenção da osmolaridade do plasma, do volume hídrico corporal e do equilíbrio ácido-base. A homeostase é regulada principalmente pelos rins (sistema renina-angiotensina-aldosterona) e pelo eixo sede/hormônio antidiurético (ADH).
-                    <InfoIcon content="A bomba Na⁺/K⁺-ATPase mantém alta concentração de Na⁺ fora das células, essencial para a excitação neuromuscular." />
-                </>
-            ),
-        },
-        { type: 'subheader', content: 'Distúrbios' },
-        {
-            type: 'paragraph',
-            content: <strong className="text-xl text-blue-600 dark:text-blue-400">Hiponatremia (Sódio Baixo)</strong>
-        },
-        {
-            type: 'paragraph',
-            content: (
-                <>
-                    Ocorre por perda excessiva de sódio ou ganho de água livre. Causas comuns incluem <Highlight color="orange">doença de Addison</Highlight>, insuficiência renal avançada, perdas gastrointestinais (vômitos/diarreia) e diurese osmótica (ex: cetoacidose diabética).
-                </>
-            )
-        },
-        {
-            type: 'list',
-            content: (
-                <>
-                    <li><strong>Sinais Clínicos:</strong> Letargia, fraqueza, ataxia, convulsões e coma, especialmente se a queda for rápida.</li>
-                    <li><strong>Achados Laboratoriais:</strong> Sódio sérico baixo. Em Addison, K⁺ elevado e relação Na:K {"<"} 27:1 é um forte indicativo.</li>
-                </>
-            )
-        },
-        {
-            type: 'warning',
-            title: 'Correção da Hiponatremia',
-            content: "A correção deve ser LENTA (não exceder 0.5–0.6 mEq/L por hora ou ~12 mEq/L em 24h) para evitar a síndrome da desmielinização osmótica (mielinólise pontina), uma lesão neurológica grave e irreversível."
-        },
-        {
-            type: 'formula',
-            content: "Déficit de Sódio (mEq) = 0.6 * peso(kg) * (Na⁺ desejado – Na⁺ atual)"
-        },
-        {
-            type: 'paragraph',
-            content: <strong className="text-xl text-red-600 dark:text-red-400">Hipernatremia (Sódio Alto)</strong>
-        },
-        {
-            type: 'paragraph',
-            content: (
-                <>
-                    Resulta de perda de água livre (desidratação) ou ganho excessivo de sal. Causas incluem privação de água, <Highlight color="blue">diabetes insipidus</Highlight>, perdas gastrointestinais e ingestão de sal. Causa desidratação celular, especialmente no cérebro.
-                </>
-            )
-        },
-        {
-            type: 'list',
-            content: (
-                <>
-                    <li><strong>Sinais Clínicos:</strong> Sede intensa, mucosas secas, depressão mental, tremores e convulsões.</li>
-                    <li><strong>Achados Laboratoriais:</strong> Sódio sérico elevado. Em diabetes insipidus, a urina fica inapropriadamente diluída (hipostenúrica).</li>
-                </>
-            )
-        },
-        {
-            type: 'warning',
-            title: 'Correção da Hipernatremia',
-            content: "A correção também deve ser LENTA (não mais que 0.5 mEq/L por hora ou 10-12 mEq/L/dia) para evitar edema cerebral. O objetivo é repor o déficit de água livre."
-        },
-        {
-            type: 'formula',
-            content: "Déficit de Água Livre (L) = 0.6 * peso(kg) * [(Na⁺ atual / Na⁺ normal) – 1]"
-        }
-    ]
+    content: SODIUM_GUIDE_CONTENT
 };
 
 const POTASSIUM_DATA: ElectrolyteData = {
     id: 'potassio',
     name: "Potássio (K⁺)",
     normalValues: {
-        dog: "~4.0–5.0 mEq/L",
-        cat: "~4.0–5.5 mEq/L"
+        dog: "~3.5–5.5 mEq/L",
+        cat: "~3.5–5.5 mEq/L"
     },
-    content: [
-        { type: 'header', content: 'Potássio (K⁺)' },
-        { type: 'subheader', content: 'Função e Homeostase' },
-        {
-            type: 'paragraph',
-            content: "O potássio é o principal cátion intracelular, crítico para o potencial de repouso das membranas de células excitáveis (músculos, neurônios). Pequenas alterações no K⁺ extracelular causam mudanças significativas na excitabilidade cardíaca e neuromuscular. A homeostase é regulada pelos rins (aldosterona) e pela insulina/catecolaminas, que promovem a entrada de K⁺ nas células.",
-        },
-        { type: 'subheader', content: 'Distúrbios' },
-        {
-            type: 'paragraph',
-            content: <strong className="text-xl text-blue-600 dark:text-blue-400">Hipocalemia (Potássio Baixo)</strong>
-        },
-        {
-            type: 'paragraph',
-            content: (
-                <>
-                    Mais comum em gatos, especialmente com <Highlight color="orange">doença renal crônica (DRC)</Highlight>. Causas incluem perdas renais ou gastrointestinais, redistribuição para o meio intracelular (alcalose, terapia com insulina) e baixa ingestão.
-                </>
-            )
-        },
-        {
-            type: 'list',
-            content: (
-                <>
-                    <li><strong>Sinais Clínicos:</strong> Fraqueza muscular generalizada, apatia, anorexia. Em gatos, é clássica a <Highlight color="yellow">ventroflexão cervical</Highlight> (incapacidade de levantar a cabeça). Casos graves podem levar à paralisia respiratória.</li>
-                    <li><strong>ECG:</strong> Ondas T achatadas, depressão do segmento ST e aparecimento de ondas U.</li>
-                </>
-            )
-        },
-        {
-            type: 'warning',
-            title: 'Taxa de Infusão de Potássio',
-            content: "A taxa máxima segura de infusão de potássio IV é de 0.5 mEq/kg/hora. Taxas superiores podem causar arritmias cardíacas fatais."
-        },
-        {
-            type: 'paragraph',
-            content: <strong className="text-xl text-red-600 dark:text-red-400">Hipercalemia (Potássio Alto)</strong>
-        },
-        {
-            type: 'paragraph',
-            content: "Ocorre quando a excreção renal está comprometida, há liberação maciça de K⁺ do meio intracelular ou aporte excessivo. É uma emergência médica devido aos seus efeitos cardíacos."
-        },
-        {
-            type: 'list',
-            content: (
-                <>
-                    <li><strong>Causas Comuns:</strong> <Highlight color="red">Obstrução uretral</Highlight> (especialmente em gatos machos), insuficiência renal aguda (oligoanúrica), doença de Addison.</li>
-                    <li><strong>Sinais Clínicos:</strong> Fraqueza muscular flácida, bradicardia, pulso fraco.</li>
-                    <li><strong>ECG (Clássico):</strong> Ondas T apiculadas, ausência de onda P, alargamento do complexo QRS. Pode progredir para fibrilação ventricular e assistolia.</li>
-                </>
-            )
-        },
-        {
-            type: 'subheader',
-            content: "Tratamento de Emergência da Hipercalemia"
-        },
-        {
-            type: 'list',
-            content: (
-                <>
-                   <li><strong>1. Antagonizar Efeitos Cardíacos:</strong> Gluconato de Cálcio 10% IV (0.5-1.5 mL/kg) lento. Protege o miocárdio, mas não baixa o K⁺.</li>
-                   <li><strong>2. Mover K⁺ para dentro das células:</strong> Insulina regular (0.25-0.5 UI/kg IV) + Glicose (1-2g por UI de insulina); Bicarbonato de sódio (1-2 mEq/kg IV lento) se houver acidose.</li>
-                   <li><strong>3. Remover K⁺ do corpo:</strong> Fluidoterapia sem K⁺, diuréticos (furosemida 2-4 mg/kg IV) se o paciente urina, e tratamento da causa base (ex: desobstrução uretral).</li>
-                </>
-            )
-        }
-    ]
+    content: POTASSIUM_GUIDE_CONTENT
 };
 
 const CHLORIDE_DATA: ElectrolyteData = {
@@ -277,10 +141,10 @@ const CALCIUM_DATA: ElectrolyteData = {
     id: 'calcio',
     name: "Cálcio (Ca²⁺)",
     normalValues: {
-        dog: "Total: 9.0–11.5 mg/dL, Ionizado: 1.15–1.38 mmol/L",
-        cat: "Total: 8.0–11.5 mg/dL, Ionizado: 1.13–1.38 mmol/L"
+        dog: "~8.5–11.5 mg/dL (total); ~1.1–1.4 mmol/L (ionizado)",
+        cat: "~8.0–11.0 mg/dL (total); ~1.1–1.4 mmol/L (ionizado)"
     },
-    content: [{type: 'header', content: 'Cálcio (Ca²⁺)'}, {type: 'paragraph', content: 'Conteúdo sobre cálcio a ser adicionado.'}]
+    content: CALCIUM_GUIDE_CONTENT
 };
 
 export const ELECTROLYTE_LIBRARY: ElectrolyteData[] = [
