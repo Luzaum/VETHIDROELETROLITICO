@@ -58,8 +58,11 @@ const PotassiumCalculator: React.FC<PotassiumCalculatorProps> = ({ className = '
   return (
     <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 ${className}`}>
       <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-        🧮 Calculadora de Potássio
+        ⚡ Calculadora Prática de Potássio
       </h2>
+      <p className="text-gray-600 dark:text-gray-400 mb-6">
+        Use a tabela padrão para reposição segura de potássio IV
+      </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Input Section */}

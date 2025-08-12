@@ -51,8 +51,11 @@ const SodiumCalculator: React.FC<SodiumCalculatorProps> = ({ className = '' }) =
   return (
     <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 ${className}`}>
       <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-        🧮 Calculadora de Sódio
+        👑 Calculadora Prática de Sódio
       </h2>
+      <p className="text-gray-600 dark:text-gray-400 mb-6">
+        Cálculo de déficit e correção segura (máx 0.5 mEq/L/h)
+      </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Input Section */}

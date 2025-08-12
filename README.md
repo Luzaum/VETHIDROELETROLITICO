@@ -1,59 +1,55 @@
-# VETHIDROELETROLITICO - Guia Completo de Fluidoterapia e Eletrólitos
+# VETHIDROELETROLITICO - Guia Prático de Eletrólitos
 
 ## 📋 Descrição
 
-O **VETHIDROELETROLITICO** é uma aplicação web especializada em fluidoterapia e correção de distúrbios eletrolíticos para cães e gatos. Desenvolvido para veterinários, oferece guias detalhados, calculadoras interativas e ferramentas clínicas baseadas nas melhores práticas da medicina veterinária.
+O **VETHIDROELETROLITICO** é uma aplicação web prática para veterinários que precisam de informações rápidas e precisas sobre correção de distúrbios eletrolíticos em cães e gatos. Focado no essencial: **quando corrigir, como corrigir, com o que corrigir**.
 
 ## 🚀 Funcionalidades Principais
 
-### 📚 Guias Especializados
+### 📚 Guia Integrado por Eletrólito
 
-#### 👑 Guia Mestre de Sódio (Na⁺)
-- **Fisiologia completa** do sódio e sua relação com a água corporal
-- **Hiponatremia**: Classificação, etiologia, sinais clínicos e tratamento passo-a-passo
-- **Hipernatremia**: Causas, fisiopatologia e protocolos de correção segura
-- **Fórmulas clínicas** implementadas na calculadora interativa
-- **Exemplos práticos** com casos clínicos reais
+O usuário seleciona o eletrólito desejado e acessa informações práticas organizadas:
 
-#### ⚡ Guia do Potássio (K⁺) - O Maestro da Célula
-- **Fisiologia da excitabilidade celular** e papel do potássio
-- **Hipocalemia**: Causas, sinais clínicos (incluindo ventroflexão cervical em gatos) e tratamento
-- **Hipercalemia**: Emergência médica com protocolo C.A.I.G.O.U
-- **Tabela de reposição padrão** para suplementação IV segura
-- **Alertas de segurança** com limite máximo de 0.5 mEq/kg/hora
+#### 👑 Sódio (Na⁺)
+- **Quando está baixo**: Principais situações (vômito, Addison, diuréticos)
+- **Quando está alto**: Diabetes insipidus, perda de água
+- **Como corrigir**: Status volêmico, fluidos de escolha, fórmulas práticas
+- **Regra de ouro**: Máximo 0.5 mEq/L/hora
 
-#### ⚖️ Guia do Cloro (Cl⁻) - O Parceiro Silencioso
-- **Relação com o bicarbonato** e equilíbrio ácido-base
-- **Hipocloremia**: Alcalose metabólica hipoclorêmica e tratamento
-- **Hipercloremia**: Acidose metabólica hiperclorêmica e correção
-- **Guia de seleção de fluidos** baseado no distúrbio do cloro
+#### ⚡ Potássio (K⁺)
+- **Quando está baixo**: DRC em gatos, vômito/diarreia, anorexia
+- **Quando está alto**: Obstrução uretral, Addison, IRA
+- **Como corrigir**: Tabela padrão de reposição IV, protocolo C.A.I.G.O.U
+- **Regra de ouro**: Máximo 0.5 mEq/kg/hora
 
-#### 🏛️ Guia do Cálcio (Ca²⁺) - O Pilar da Contração e Sinalização
-- **Fisiologia do cálcio ionizado** vs. cálcio total
-- **Hipocalcemia**: Tetania, eclampsia, hipoparatireoidismo e tratamento de emergência
-- **Hipercalcemia**: Protocolo "GOSH DARN IT" e escada terapêutica
-- **Farmacopeia completa** com doses e precauções
-- **Cálculo do produto Ca×P** para risco de mineralização
+#### ⚖️ Cloro (Cl⁻)
+- **Quando está baixo**: Vômito gástrico, diuréticos
+- **Quando está alto**: Excesso de NaCl 0.9%, diarreia
+- **Como corrigir**: Seleção inteligente de fluidos
+- **Conceito chave**: Relação inversa com bicarbonato
 
-### 🧮 Calculadoras Interativas
+#### 🏛️ Cálcio (Ca²⁺)
+- **Quando está baixo**: Eclampsia, hipoparatireoidismo, pancreatite
+- **Quando está alto**: Câncer, Addison, intoxicação vitamina D
+- **Como corrigir**: Gluconato de cálcio para emergência, fluidos para hipercalcemia
+- **Conceito chave**: Cálcio ionizado vs. total
 
-#### Calculadora de Sódio
-- **Déficit de sódio** e água livre
-- **Taxa de infusão** baseada na fórmula mestre
-- **Status do sódio** com classificação de severidade
-- **Lembretes de segurança** para correção lenta
+### 🧮 Calculadoras Práticas
 
-#### Calculadora de Potássio
-- **Tabela de reposição** baseada no K⁺ sérico
-- **Cálculo automático** da taxa de infusão segura
-- **Alertas de segurança** quando excede 0.5 mEq/kg/hora
-- **Taxa máxima segura** de fluido por peso
+#### 👑 Calculadora de Sódio
+- Cálculo de déficit e taxa de correção segura
+- Status do sódio com alertas de segurança
+- Fórmulas implementadas: déficit de Na⁺ e água livre
 
-#### Calculadora de Cálcio
-- **Cálcio ionizado vs. total** com correção pela albumina
-- **Produto Ca×P** para risco de mineralização
-- **Doses de emergência** para hipocalcemia
-- **Protocolos terapêuticos** para hipercalcemia
+#### ⚡ Calculadora de Potássio
+- Tabela padrão de reposição baseada no K⁺ sérico
+- Cálculo automático da taxa máxima segura
+- Alertas quando excede 0.5 mEq/kg/hora
+
+#### 🏛️ Calculadora de Cálcio
+- Correção automática pela albumina
+- Cálculo do produto Ca×P para risco de mineralização
+- Doses de emergência para hipocalcemia
 
 ### 📖 Bulário Veterinário
 - **Medicamentos** para fluidoterapia e correção eletrolítica

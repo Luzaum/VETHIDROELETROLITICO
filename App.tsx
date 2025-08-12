@@ -5,9 +5,7 @@ import { HomePage } from './pages/HomePage';
 import { GuidePage } from './pages/GuidePage';
 import { CalculatorPage } from './pages/CalculatorPage';
 import { FormularyPage } from './pages/FormularyPage';
-import SodiumGuidePage from './pages/SodiumGuidePage';
-import PotassiumGuidePage from './pages/PotassiumGuidePage';
-import CalciumGuidePage from './pages/CalciumGuidePage';
+
 import { ThemeToggle } from './components/ThemeToggle';
 import { useTheme } from './context/ThemeContext';
 
@@ -41,10 +39,7 @@ const Header: React.FC = () => {
                         <div className="ml-10 flex items-baseline space-x-4">
                             <NavLink to="/" className={getLinkClass('/')}>Início</NavLink>
                             <NavLink to="/calculator" className={getLinkClass('/calculator')}>Calculadora</NavLink>
-                            <NavLink to="/guide" className={getLinkClass('/guide')}>Guia</NavLink>
-                            <NavLink to="/sodium-guide" className={getLinkClass('/sodium-guide')}>Guia Sódio</NavLink>
-                            <NavLink to="/potassium-guide" className={getLinkClass('/potassium-guide')}>Guia Potássio</NavLink>
-                            <NavLink to="/calcium-guide" className={getLinkClass('/calcium-guide')}>Guia Cálcio</NavLink>
+                                                                <NavLink to="/guide" className={getLinkClass('/guide')}>Guia</NavLink>
                             <NavLink to="/formulary" className={getLinkClass('/formulary')}>Bulário</NavLink>
                         </div>
                     </div>
@@ -63,17 +58,14 @@ const App: React.FC = () => {
             <div className="min-h-screen bg-gray-50 dark:bg-brand-dark-bg text-brand-text dark:text-brand-dark-text">
                 <Header />
                 <main>
-                    <Routes>
-                        <Route path="/" element={<HomePage />} />
-                        <Route path="/guide" element={<GuidePage />} />
-                        <Route path="/guide/:topic" element={<GuidePage />} />
-                        <Route path="/sodium-guide" element={<SodiumGuidePage />} />
-                        <Route path="/potassium-guide" element={<PotassiumGuidePage />} />
-                        <Route path="/calcium-guide" element={<CalciumGuidePage />} />
-                        <Route path="/calculator" element={<CalculatorPage />} />
-                        <Route path="/formulary" element={<FormularyPage />} />
-                        <Route path="/formulary/:topic" element={<FormularyPage />} />
-                    </Routes>
+                                <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/guide" element={<GuidePage />} />
+                <Route path="/guide/:topic" element={<GuidePage />} />
+                <Route path="/calculator" element={<CalculatorPage />} />
+                <Route path="/formulary" element={<FormularyPage />} />
+                <Route path="/formulary/:topic" element={<FormularyPage />} />
+            </Routes>
                 </main>
                 <footer className="bg-white dark:bg-brand-dark-surface text-center py-4 mt-8">
                     <p className="text-sm text-gray-500 dark:text-gray-400">&copy; {new Date().getFullYear()} Vet Hidro Eletrolítico. Todos os direitos reservados.</p>
