@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { loadConsensos, sodiumLimits } from '../lib/rules';
 import { HelpfulTip } from './HelpfulTip';
 import { Comorbidity, PhysiologicalState } from '../lib/types';
+import { InfoIcon } from './Tooltip';
+import { TIP_NA_CORRECTION_RATE, TIP_OSM_FORMULA } from '../data/tooltips';
 
 interface SodiumCalculatorProps {
   className?: string;
@@ -143,6 +145,7 @@ const SodiumCalculator: React.FC<SodiumCalculatorProps> = ({ className = '' }) =
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Sódio Atual (mEq/L)
+              <span className="ml-1 align-middle"><InfoIcon content={TIP_OSM_FORMULA} /></span>
             </label>
             <input
               type="number"
@@ -156,6 +159,7 @@ const SodiumCalculator: React.FC<SodiumCalculatorProps> = ({ className = '' }) =
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Sódio Alvo (mEq/L)
+              <span className="ml-1 align-middle"><InfoIcon content={TIP_NA_CORRECTION_RATE} /></span>
             </label>
             <input
               type="number"
@@ -186,6 +190,7 @@ const SodiumCalculator: React.FC<SodiumCalculatorProps> = ({ className = '' }) =
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Taxa Desejada (mEq/L/h)
+              <span className="ml-1 align-middle"><InfoIcon content={TIP_NA_CORRECTION_RATE} /></span>
             </label>
             <input
               type="number"

@@ -9,7 +9,7 @@ export function clamp(value: number, min: number, max: number): number {
 
 export async function loadConsensos(): Promise<Consensos> {
   if (consensosCache) return consensosCache;
-  const res = await fetch('/consensos.json', { cache: 'no-cache' });
+  const res = await fetch('/consensos.json', { cache: 'no-cache' }).catch(async () => fetch('/public/consensos.json', { cache: 'no-cache' }));
   if (!res.ok) throw new Error('Falha ao carregar consensos.json');
   const data = await res.json();
   consensosCache = data as Consensos;

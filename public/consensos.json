@@ -1,0 +1,84 @@
+{
+  "limites": {
+    "sodio": {
+      "max_mEqL_dia_agudo": 10,
+      "max_mEqL_dia_cronico": 8,
+      "max_mEqL_h": 0.5,
+      "tbw": { "cao": 0.6, "gato": 0.5 },
+      "alvo_padrao": 145,
+      "ref": "sodio_consenso"
+    },
+    "potassio": {
+      "max_mEq_kg_h": 0.5,
+      "conc_max_mEq_L_periferico": 60,
+      "conc_max_mEq_L_central": 80,
+      "tabela_ajuste": [
+        { "faixa_min": 0, "faixa_max": 2.0, "kcl_mEq_L": 80, "max_mL_kg_h": 6, "ref": "k_tabela" },
+        { "faixa_min": 2.01, "faixa_max": 2.5, "kcl_mEq_L": 60, "max_mL_kg_h": 8, "ref": "k_tabela" },
+        { "faixa_min": 2.51, "faixa_max": 3.0, "kcl_mEq_L": 40, "max_mL_kg_h": 12, "ref": "k_tabela" },
+        { "faixa_min": 3.01, "faixa_max": 3.5, "kcl_mEq_L": 30, "max_mL_kg_h": 18, "ref": "k_tabela" },
+        { "faixa_min": 3.51, "faixa_max": 9.9, "kcl_mEq_L": 20, "max_mL_kg_h": 25, "ref": "k_tabela" }
+      ],
+      "ref": "k_regra_geral"
+    },
+    "fosforo": {
+      "min_mmol_kg_h": 0.01,
+      "max_mmol_kg_h": 0.09,
+      "ref": "p_intervalo"
+    },
+    "bicarbonato": {
+      "vd_L_kg": 0.3,
+      "fracao_admin_inicial": 0.33,
+      "ref": "hco3_vd"
+    },
+    "glicemia": {
+      "alvo_mg_dL": 100,
+      "ref": "gly_alvo"
+    },
+    "ph": {
+      "alvo": 7.35,
+      "ref": "ph_alvo"
+    }
+  },
+  "modificadores": {
+    "estados": {
+      "filhote": { "reduzir_rate_percent": 10, "alerta": ["Filhotes: risco de hipoglicemia, considerar dextrose 2,5–5%"] },
+      "adulto": {},
+      "idoso": { "reduzir_rate_percent": 20, "reduzir_volume_percent": 10, "alerta": ["Idosos: maior risco de IC e DRC"] },
+      "gestante": { "reduzir_rate_percent": 10, "alerta": ["Gestantes: hemodiluição fisiológica"] },
+      "lactante": { "reduzir_rate_percent": 10, "alerta": ["Lactantes: perdas aumentadas de Ca/P"] }
+    },
+    "comorbidades": {
+      "cardiopata": { "reduzir_rate_percent": 30, "reduzir_volume_percent": 30, "evitar_fluido": ["D5W puro"], "alerta": ["Cardiopata: evite sobrecarga hídrica"] },
+      "hepatopata": { "preferir_fluido": ["Plasmalyte"], "alerta": ["Evitar lactato em hepatopatia grave"] },
+      "renopata": { "reduzir_rate_percent": 20, "alerta": ["Renopata: risco de hipercalemia e sobrecarga"] },
+      "septico": { "evitar_fluido": ["NaCl 0.9%"], "preferir_fluido": ["Plasmalyte", "RL"], "alerta": ["Séptico: evitar hipercloremia"] },
+      "endocrinopata": { "alerta": ["DKA/HHS: corrigir K e P antes de insulina"] }
+    }
+  },
+  "fluidos": {
+    "NaCl 0.9%": { "Na_mEq_L": 154, "Cl_mEq_L": 154, "osmolaridade_mOsm_L": 308 },
+    "NaCl 0.45%": { "Na_mEq_L": 77, "Cl_mEq_L": 77 },
+    "Ringer Lactato": { "Na_mEq_L": 130, "Cl_mEq_L": 109, "K_mEq_L": 4, "Ca_mEq_L": 3 },
+    "Plasmalyte": { "Na_mEq_L": 140, "Cl_mEq_L": 98, "K_mEq_L": 5 },
+    "D5W": { }
+  },
+  "estoques": {
+    "kcl191_meq_por_ml": 2.56,
+    "kpo4_mmolP_ml": 3,
+    "kpo4_meqK_ml": 4.4,
+    "bicarbonato84_meq_ml": 1
+  },
+  "refs": {
+    "sodio_consenso": { "fonte": "[CITAR: Livro/Consenso do usuário]", "capitulo": "Sódio", "pagina": "xx-yy" },
+    "k_regra_geral": { "fonte": "[CITAR: BSAVA/DiBartola]", "capitulo": "Potássio", "pagina": "xx" },
+    "k_tabela": { "fonte": "[CITAR: BSAVA]", "capitulo": "Tabela K+ por severidade", "pagina": "xx" },
+    "p_intervalo": { "fonte": "[CITAR: DiBartola]", "capitulo": "Fósforo", "pagina": "xx" },
+    "hco3_vd": { "fonte": "[CITAR: DiBartola]", "capitulo": "Acidose/Bicarbonato", "pagina": "xx" },
+    "gly_alvo": { "fonte": "[CITAR: Texto de Endocrinologia Vet]", "capitulo": "Glicose", "pagina": "xx" },
+    "ph_alvo": { "fonte": "[CITAR: Gasometria]", "capitulo": "pH", "pagina": "xx" }
+  }
+}
+
+
+

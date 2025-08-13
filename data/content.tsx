@@ -1164,6 +1164,68 @@ export const FORMULARY_LIBRARY: FormularyItem[] = [
         ]
     },
     {
+        id: 'gluconato_calcio10',
+        name: 'Gluconato de Cálcio 10%',
+        content: [
+            { type: 'header', content: 'Gluconato de Cálcio 10%' },
+            { type: 'paragraph', content: 'Sais de cálcio para estabilização de membrana em hipercalemia e tratamento de hipocalcemia sintomática.'},
+            { type: 'subheader', content: 'Indicações'},
+            { type: 'list', content: <>
+                <li>Hipocalcemia sintomática (tetania, convulsões)</li>
+                <li>Hipercalemia com alterações de ECG (estabilização de membrana)</li>
+            </>},
+            { type: 'subheader', content: 'Doses e Administração'},
+            { type: 'list', content: <>
+                <li><strong>Dose:</strong> 0,5–1,5 mL/kg IV lento (10–20 min) com ECG contínuo</li>
+                <li><strong>NÃO</strong> administrar SC (necrose tecidual)</li>
+            </>},
+            { type: 'warning', title: 'Precauções', content: <>
+                Incompatível com bicarbonato e fosfatos. Monitorar bradicardia; parar infusão se ocorrer.
+                <br/>
+                <em>BSAVA – Emergências; Nelson & Couto.</em>
+            </>}
+        ]
+    },
+    {
+        id: 'kphos',
+        name: 'Fosfato de Potássio (K-Phos)',
+        content: [
+            { type: 'header', content: 'Fosfato de Potássio (K-Phos)' },
+            { type: 'paragraph', content: 'Fonte IV de fosfato e potássio para hipofosfatemia, especialmente em DKA e síndrome de realimentação.'},
+            { type: 'subheader', content: 'Concentração'},
+            { type: 'list', content: <>
+                <li>3 mmol de P + 4,4 mEq de K por mL</li>
+            </>},
+            { type: 'subheader', content: 'Taxas'},
+            { type: 'list', content: <>
+                <li>0,01–0,03 mmol/kg/h (até 0,12 em casos graves) com monitorização</li>
+            </>},
+            { type: 'warning', title: 'Compatibilidade', content: <>
+                <strong>INCOMPATÍVEL</strong> com fluidos contendo cálcio (RL/Plasmalyte). Usar NaCl 0,9% ou D5W.
+                <br/>
+                <em>DiBartola – Fosfato; Nelson & Couto.</em>
+            </>}
+        ]
+    },
+    {
+        id: 'mgso4',
+        name: 'Sulfato de Magnésio (MgSO₄)',
+        content: [
+            { type: 'header', content: 'Sulfato de Magnésio (MgSO₄)' },
+            { type: 'paragraph', content: 'Reposição de magnésio em hipomagnesemia, frequentemente associada à hipocalemia resistente.'},
+            { type: 'subheader', content: 'Taxas'},
+            { type: 'list', content: <>
+                <li>0,1–0,3 mEq/kg/h (1,6–2,5 mg/kg/h) IV</li>
+                <li>Infundir em 6–8 horas; monitorar reflexos patelares e função renal</li>
+            </>},
+            { type: 'warning', title: 'Cuidados', content: <>
+                Cuidado em insuficiência renal; risco de depressão SNC/respiratória em excesso.
+                <br/>
+                <em>Nelson & Couto; BSAVA.</em>
+            </>}
+        ]
+    },
+    {
         id: 'kcl191',
         name: 'Cloreto de Potássio (KCl 19.1%)',
         content: [

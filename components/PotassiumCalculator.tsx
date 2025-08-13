@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { HelpfulTip } from './HelpfulTip';
+import { InfoIcon } from './Tooltip';
+import { TIP_K_HYPO_PATHO, TIP_K_IV_LIMITS, TIP_K_DILUTION } from '../data/tooltips';
 import { loadConsensos, potassiumGuidance } from '../lib/rules';
 import { Comorbidity, PhysiologicalState } from '../lib/types';
 
@@ -95,6 +97,7 @@ const PotassiumCalculator: React.FC<PotassiumCalculatorProps> = ({ className = '
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Peso (kg)
+              <span className="ml-1 align-middle"><InfoIcon content={TIP_K_HYPO_PATHO} /></span>
             </label>
             <input
               type="number"
@@ -132,6 +135,7 @@ const PotassiumCalculator: React.FC<PotassiumCalculatorProps> = ({ className = '
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Potássio Atual (mEq/L)
+              <span className="ml-1 align-middle"><InfoIcon content={TIP_K_IV_LIMITS} /></span>
             </label>
             <input
               type="number"
@@ -146,6 +150,7 @@ const PotassiumCalculator: React.FC<PotassiumCalculatorProps> = ({ className = '
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Taxa de Infusão de Fluido (mL/h)
+              <span className="ml-1 align-middle"><InfoIcon content={TIP_K_DILUTION} /></span>
             </label>
             <input
               type="number"
