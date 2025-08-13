@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { HelpfulTip } from './HelpfulTip';
 import { InfoIcon } from './Tooltip';
+import HelpPopover from './HelpPopover';
 import { TIP_K_HYPO_PATHO, TIP_K_IV_LIMITS, TIP_K_DILUTION } from '../data/tooltips';
+import { POTASSIUM_REPLACEMENT_TABLE_CONTENT } from '../data/content';
 import { loadConsensos, potassiumGuidance } from '../lib/rules';
 import { Comorbidity, PhysiologicalState } from '../lib/types';
 
@@ -13,6 +15,10 @@ const PotassiumCalculator: React.FC<PotassiumCalculatorProps> = ({ className = '
   const [weight, setWeight] = useState<number>(0);
   const [currentPotassium, setCurrentPotassium] = useState<number>(0);
   const [fluidRate, setFluidRate] = useState<number>(0);
+  const [container, setContainer] = useState<'syringe' | 'bag'>('bag');
+  const [syringeSize, setSyringeSize] = useState<number>(20);
+  const [bagVolume, setBagVolume] = useState<number>(500);
+  const [infusionTimeHours, setInfusionTimeHours] = useState<number>(8);
   const [species, setSpecies] = useState<'dog' | 'cat'>('dog');
   const [state, setState] = useState<PhysiologicalState>('adulto');
   const [comorbidities, setComorbidities] = useState<Comorbidity[]>(['nenhuma']);
@@ -49,23 +55,21 @@ const PotassiumCalculator: React.FC<PotassiumCalculatorProps> = ({ className = '
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [consensoReady, consensos, species, weight, state, comorbidities, currentPotassium]);
 
-  const calculateInfusionRate = () => {
-    if (!guidance || weight <= 0 || currentPotassium <= 0 || fluidRate <= 0) return 0;
+  const computeVolumes = () => {
+    if (!guidance || weight <= 0 || currentPotassium <= 0 || infusionTimeHours <= 0) return null;
     const { limites } = guidance as any;
-    const kclPerHour = (limites.kclPerLiter * fluidRate) / 1000;
-    const kclPerKgPerHour = kclPerHour / weight;
-    return kclPerKgPerHour;
-  };
-
-  const getMaxSafeFluidRate = () => {
-    if (!guidance || weight <= 0 || currentPotassium <= 0) return 0;
-    const { limites } = guidance as any;
-    return (limites.maxFluidRate_mL_kg_h || 0) * weight;
+    const kclPerLiter = limites.kclPerLiter || 0;
+    const volumeMl = container === 'bag' ? bagVolume : syringeSize;
+    const totalK_mEq = (kclPerLiter * volumeMl) / 1000;
+    const kclStockMeqPerMl = ((window as any).___consensosCache?.estoques?.kcl191_meq_por_ml) || 2.56;
+    const kclToAddMl = totalK_mEq / kclStockMeqPerMl;
+    const kPerKgPerHour = (totalK_mEq / infusionTimeHours) / weight;
+    const safeLimit = ((window as any).___consensosCache?.limites?.potassio?.max_mEq_kg_h) || 0.5;
+    return { kclPerLiter, volumeMl, totalK_mEq, kclToAddMl, kPerKgPerHour, safeLimit, isSafe: kPerKgPerHour <= safeLimit };
   };
 
   const potassiumStatus = getPotassiumStatus();
-  const infusionRate = calculateInfusionRate();
-  const maxSafeFluidRate = getMaxSafeFluidRate();
+  const calc = computeVolumes();
   const kclPerLiter = guidance ? (guidance as any).limites.kclPerLiter : 0;
 
   return (
@@ -147,18 +151,43 @@ const PotassiumCalculator: React.FC<PotassiumCalculatorProps> = ({ className = '
             />
           </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Recipiente</label>
+              <select value={container} onChange={(e)=> setContainer(e.target.value as 'syringe'|'bag')} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                <option value="syringe">Seringa</option>
+                <option value="bag">Bolsa</option>
+              </select>
+            </div>
+            {container === 'syringe' ? (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Seringa (mL)</label>
+                <select value={syringeSize} onChange={(e)=> setSyringeSize(Number(e.target.value))} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={60}>60</option>
+                </select>
+              </div>
+            ) : (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bolsa (mL)</label>
+                <select value={bagVolume} onChange={(e)=> setBagVolume(Number(e.target.value))} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                  <option value={250}>250</option>
+                  <option value={500}>500</option>
+                  <option value={1000}>1000</option>
+                </select>
+              </div>
+            )}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Tempo de Infusão (h)
+                <span className="ml-1 align-middle"><InfoIcon content={TIP_K_DILUTION} /></span>
+              </label>
+              <input type="number" value={infusionTimeHours} onChange={(e)=> setInfusionTimeHours(Number(e.target.value))} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="Ex: 8" />
+            </div>
+          </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Taxa de Infusão de Fluido (mL/h)
-              <span className="ml-1 align-middle"><InfoIcon content={TIP_K_DILUTION} /></span>
-            </label>
-            <input
-              type="number"
-              value={fluidRate}
-              onChange={(e) => setFluidRate(Number(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              placeholder="Ex: 100"
-            />
+            <HelpPopover ariaLabel="Tabela ACVIM de reposição de K+">{POTASSIUM_REPLACEMENT_TABLE_CONTENT}</HelpPopover>
           </div>
         </div>
 
@@ -191,23 +220,26 @@ const PotassiumCalculator: React.FC<PotassiumCalculatorProps> = ({ className = '
                 </div>
               </div>
 
-              <div>
-                <div className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                  Taxa de infusão de K⁺:
-                </div>
-                <div className="text-lg font-bold text-blue-900 dark:text-blue-100">
-                  {infusionRate.toFixed(2)} mEq/kg/h
-                </div>
-              </div>
-
-              <div>
-                <div className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                  Taxa máxima segura de fluido:
-                </div>
-                <div className="text-lg font-bold text-blue-900 dark:text-blue-100">
-                  {maxSafeFluidRate.toFixed(1)} mL/h
-                </div>
-              </div>
+              {calc && (
+                <>
+                  <div>
+                    <div className="text-sm font-medium text-blue-800 dark:text-blue-200">Volume do preparo:</div>
+                    <div className="text-lg font-bold text-blue-900 dark:text-blue-100">{calc.volumeMl} mL ({container === 'syringe' ? 'seringa' : 'bolsa'})</div>
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-blue-800 dark:text-blue-200">K⁺ total no preparo:</div>
+                    <div className="text-lg font-bold text-blue-900 dark:text-blue-100">{calc.totalK_mEq.toFixed(2)} mEq</div>
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-blue-800 dark:text-blue-200">KCl 19,1% a adicionar:</div>
+                    <div className="text-lg font-bold text-blue-900 dark:text-blue-100">{calc.kclToAddMl.toFixed(2)} mL</div>
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-blue-800 dark:text-blue-200">Taxa resultante de K⁺:</div>
+                    <div className={`text-lg font-bold ${calc.isSafe ? 'text-blue-900 dark:text-blue-100' : 'text-red-700 dark:text-red-300'}`}>{calc.kPerKgPerHour.toFixed(2)} mEq/kg/h</div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
@@ -226,13 +258,13 @@ const PotassiumCalculator: React.FC<PotassiumCalculatorProps> = ({ className = '
             )}
           </div>
 
-          {infusionRate > 0.5 && (
+          {calc && !calc.isSafe && (
             <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4">
               <h3 className="text-lg font-semibold text-red-900 dark:text-red-100 mb-3">
                 🚨 ALERTA DE SEGURANÇA
               </h3>
               <p className="text-sm text-red-800 dark:text-red-200">
-                A taxa de infusão calculada ({infusionRate.toFixed(2)} mEq/kg/h) pode exceder o limite máximo do seu consenso. Valide antes de prosseguir.
+                A taxa de infusão calculada ({calc.kPerKgPerHour.toFixed(2)} mEq/kg/h) excede o limite máximo ({calc.safeLimit.toFixed(2)} mEq/kg/h). Valide antes de prosseguir.
                 <br/><br/>
                 <strong>Reduza a taxa de infusão do fluido ou use uma concentração menor de KCl.</strong>
               </p>

@@ -1,6 +1,5 @@
 import React from 'react';
 import { ElectrolyteData, FormularyItem, ContentBlock } from '../types';
-import { InfoIcon } from '../components/Tooltip';
 
 
 // Helper for highlighting text
@@ -20,7 +19,7 @@ export const POTASSIUM_REPLACEMENT_TABLE_CONTENT = (
       <p className="font-bold mb-2">Tabela de Reposição de Potássio (K⁺)</p>
       <p className="text-xs mb-2">Esta tabela oferece uma abordagem empírica e segura para a suplementação de potássio, baseada na concentração sérica atual do paciente. É preferível a fórmulas de déficit, pois evita correções excessivamente rápidas e arriscadas.</p>
       <table className="w-full text-xs border-collapse">
-        <thead className="bg-gray-700">
+        <thead className="bg-gray-700 text-white">
           <tr>
             <th className="border border-gray-600 p-1">K⁺ Sérico (mEq/L)</th>
             <th className="border border-gray-600 p-1">mEq de KCl a adicionar por Litro de fluido</th>
@@ -34,7 +33,7 @@ export const POTASSIUM_REPLACEMENT_TABLE_CONTENT = (
           <tr><td className="border border-gray-600 p-1">{'> 3.5'}</td><td className="border border-gray-600 p-1">20</td></tr>
         </tbody>
       </table>
-      <p className="text-xs mt-2"><strong>Fonte:</strong> Recomendações de fluidoterapia de DiBartola. A taxa máxima de infusão <strong>nunca</strong> deve exceder 0.5 mEq/kg/hora.</p>
+      <p className="text-xs mt-2 italic">Fonte: ACVIM – recomendações de suplementação de potássio; ver tabela prática. Limite de infusão ≤ 0,5 mEq/kg/h.</p>
     </div>
   );
 
@@ -205,7 +204,7 @@ const POTASSIUM_DATA: ElectrolyteData = {
         { type: 'table', content: (
             <div className="overflow-x-auto">
                 <table className="w-full text-sm border-collapse">
-                    <thead className="bg-gray-700">
+                    <thead className="bg-gray-700 text-white">
                         <tr>
                             <th className="border border-gray-600 p-2">K⁺ Sérico (mEq/L)</th>
                             <th className="border border-gray-600 p-2">KCl por Litro (mEq)</th>
@@ -222,6 +221,7 @@ const POTASSIUM_DATA: ElectrolyteData = {
                 </table>
             </div>
         )},
+        { type: 'paragraph', content: <em>Fonte: ACVIM – Recomendações de reposição de K⁺; DiBartola – Tabelas práticas.</em> },
         
         { type: 'subheader', content: 'Monitoramento:' },
         { type: 'list', content: (
@@ -367,7 +367,7 @@ const CHLORIDE_DATA: ElectrolyteData = {
         { type: 'table', content: (
             <div className="overflow-x-auto">
                 <table className="w-full text-sm border-collapse">
-                    <thead className="bg-gray-700">
+                    <thead className="bg-gray-700 text-white">
                         <tr>
                             <th className="border border-gray-600 p-2">Fluido</th>
                             <th className="border border-gray-600 p-2">Cl⁻ (mEq/L)</th>
@@ -383,6 +383,7 @@ const CHLORIDE_DATA: ElectrolyteData = {
                 </table>
             </div>
         )},
+        { type: 'paragraph', content: <em>Fonte: DiBartola – Capítulo de Cloreto; seleção de fluidos por teor de Cl⁻.</em> },
         
         { type: 'subheader', content: '⚠️ Lembretes Importantes:' },
         { type: 'list', content: (
@@ -706,7 +707,7 @@ const PHOSPHORUS_DATA: ElectrolyteData = {
         { type: 'table', content: (
             <div className="overflow-x-auto">
                 <table className="w-full text-sm border-collapse">
-                    <thead className="bg-gray-700">
+                    <thead className="bg-gray-700 text-white">
                         <tr>
                             <th className="border border-gray-600 p-2">Gravidade</th>
                             <th className="border border-gray-600 p-2">P sérico (mg/dL)</th>
@@ -721,6 +722,7 @@ const PHOSPHORUS_DATA: ElectrolyteData = {
                 </table>
             </div>
         )},
+        { type: 'paragraph', content: <em>Fonte: Nelson & Couto; DiBartola – Terapia com fosfato (taxas IV).</em> },
         
         { type: 'subheader', content: '📈 HIPERFOSFATEMIA - Quando está alto' },
         
@@ -1234,7 +1236,7 @@ export const FORMULARY_LIBRARY: FormularyItem[] = [
             { type: 'subheader', content: 'Concentração'},
             { type: 'list', content: <>
                 <li><strong>KCl 19.1%</strong>: Contém 191 mg de KCl por mL.</li>
-                <li>Isso equivale a <Highlight color="yellow">2.56 mEq de K⁺ por mL</Highlight>. <InfoIcon content="Cálculo: (191 mg/mL / 74.55 mg/mmol) = 2.56 mmol/mL = 2.56 mEq/mL." /></li>
+                <li>Isso equivale a <Highlight color="yellow">2.56 mEq de K⁺ por mL</Highlight> <span className="italic">(191 mg/mL ÷ 74.55 mg/mmol ≈ 2.56 mmol/mL ≈ 2.56 mEq/mL)</span>.</li>
             </>},
             { type: 'subheader', content: 'Como Usar'},
             { type: 'paragraph', content: 'O volume necessário de KCl é calculado com base na concentração de potássio desejada no fluido (veja a tabela de reposição na calculadora) e no volume da bolsa de fluido.'},

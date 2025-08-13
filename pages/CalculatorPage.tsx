@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { PatientInfo, Species, PhysiologicalState, Comorbidity } from '../types';
 import { InfoIcon } from '../components/Tooltip';
+import HelpPopover from '../components/HelpPopover';
 import { POTASSIUM_REPLACEMENT_TABLE_CONTENT } from '../data/content';
 import SodiumCalculator from '../components/SodiumCalculator';
 import PotassiumCalculator from '../components/PotassiumCalculator';
@@ -177,7 +178,7 @@ export const CalculatorPage: React.FC = () => {
             )}
 
             {electrolyte === 'potassium' && (
-                <PotassiumCalculator />
+                <PotassiumCalculator className="" />
             )}
 
             {electrolyte === 'sodium' && (
@@ -309,109 +310,9 @@ export const CalculatorPage: React.FC = () => {
           <FluidCompatibilityChecker />
         </div>
 
-        {/* Alertas específicos por estado fisiológico */}
-        {patientInfo.state !== PhysiologicalState.Adult && (
-          <div className="lg:col-span-2 bg-amber-50 dark:bg-amber-900/40 p-6 rounded-lg border-l-4 border-amber-400">
-            <h3 className="font-bold text-amber-800 dark:text-amber-200 mb-2">
-              ⚠️ Considerações Especiais - {patientInfo.state}
-            </h3>
-            <div className="text-sm text-amber-700 dark:text-amber-300 space-y-2">
-              {patientInfo.state === PhysiologicalState.Puppy && (
-                <>
-                  <p><strong>Filhotes/Neonatos:</strong></p>
-                  <ul className="list-disc list-inside ml-4 space-y-1">
-                    <li>Maior porcentagem de água corporal (80% neonatos, 70% filhotes)</li>
-                    <li>Fluidoterapia mais rápida: bolus 20 mL/kg</li>
-                    <li>Adicionar dextrose 2.5-5% para prevenir hipoglicemia</li>
-                    <li>KCl 20 mEq/L em fluidos de manutenção</li>
-                    <li>Valores de fósforo fisiologicamente mais altos</li>
-                  </ul>
-                </>
-              )}
-              {patientInfo.state === PhysiologicalState.Senior && (
-                <>
-                  <p><strong>Idosos/Geriátricos:</strong></p>
-                  <ul className="list-disc list-inside ml-4 space-y-1">
-                    <li>Água corporal reduzida (50-55%)</li>
-                    <li>Menor capacidade de concentração renal</li>
-                    <li>Percepção de sede diminuída</li>
-                    <li>Correções mais conservadoras e monitoramento frequente</li>
-                    <li>Risco de doença renal crônica (hiperfosfatemia)</li>
-                  </ul>
-                </>
-              )}
-              {patientInfo.state === PhysiologicalState.Pregnant && (
-                <>
-                  <p><strong>Gestantes:</strong></p>
-                  <ul className="list-disc list-inside ml-4 space-y-1">
-                    <li>Aumento do volume plasmático</li>
-                    <li>Maior demanda de cálcio e fósforo</li>
-                    <li>Hemodiluição leve (redução de Na⁺ e Cl⁻)</li>
-                    <li>Progesterona aumenta atividade da aldosterona</li>
-                    <li>Cuidado com excesso de sódio ou cálcio</li>
-                  </ul>
-                </>
-              )}
-              {patientInfo.state === PhysiologicalState.Lactating && (
-                <>
-                  <p><strong>Lactantes:</strong></p>
-                  <ul className="list-disc list-inside ml-4 space-y-1">
-                    <li>Perdas aumentadas de Ca²⁺, P e Mg²⁺</li>
-                    <li>Risco de hipocalemia e hipomagnesemia</li>
-                    <li>Possível tetania da lactação</li>
-                    <li>Incluir dextrose se hipoglicemia</li>
-                    <li>Suplementos orais quando possível</li>
-                  </ul>
-                </>
-              )}
-            </div>
-          </div>
-        )}
+        {/* Removido: alertas por estado fisiológico (a pedido) */}
 
-        {/* Fluidoterapia */}
-        <div className="lg:col-span-2 bg-white dark:bg-brand-dark-surface p-6 rounded-lg shadow-lg">
-          <h2 className="text-2xl font-bold mb-4 border-b pb-2 dark:border-gray-600">4. Plano de Fluidoterapia (24h)</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <label className="block font-medium mb-1">Desidratação (%)
-                <InfoIcon content="Estimativa clínica: leve 5%, moderada 7-8%, severa 10-12%" />
-              </label>
-              <input type="number" min={0} max={15} step={0.5} value={dehydrationPercent} onChange={e => setDehydrationPercent(parseFloat(e.target.value) || 0)} className={inputClasses} />
-            </div>
-            <div>
-              <label className="block font-medium mb-1">Perdas em Curso (mL/kg/h)
-                <InfoIcon content="Vômitos/diarreia, drenagens. Some por hora ao plano." />
-              </label>
-              <input type="number" min={0} step={0.5} value={ongoingLossesMlKgHr} onChange={e => setOngoingLossesMlKgHr(parseFloat(e.target.value) || 0)} className={inputClasses} />
-            </div>
-            <div>
-              <label className="block font-medium mb-1">Manutenção (ml/kg/dia)</label>
-              <input disabled value={patientInfo.species === Species.Dog ? 60 : 50} className={inputClasses + ' opacity-70 cursor-not-allowed'} />
-            </div>
-          </div>
-
-          {fluidPlan && (
-            <div className="mt-6 space-y-4">
-              <div className="p-4 bg-yellow-50 dark:bg-yellow-900/40 rounded-lg">
-                <h4 className="font-bold text-yellow-800 dark:text-yellow-200">Cálculos</h4>
-                <p className="mt-1">Déficit: <strong>{fluidPlan.deficitMl} mL</strong> ({fluidPlan.dehydrationPercent}%).</p>
-                <p>Manutenção: <strong>{fluidPlan.maintenanceMlDay} mL/24h</strong> (~{fluidPlan.maintenanceMlHr} mL/h).</p>
-                <p>Perdas em curso: <strong>{fluidPlan.lossesMlHr} mL/h</strong>.</p>
-              </div>
-              <div className="p-4 bg-blue-50 dark:bg-blue-900/40 rounded-lg">
-                <h4 className="font-bold text-blue-800 dark:text-blue-200">Plano sugerido</h4>
-                <p className="mt-1">Total nas primeiras 24h: <strong>{fluidPlan.total24hMl} mL</strong></p>
-                <p>Taxa média sugerida: <strong>{fluidPlan.suggestedMlHr} mL/h</strong></p>
-              </div>
-              {fluidPlan.caution && (
-                <div className="p-4 bg-red-100 dark:bg-red-900/60 rounded-lg">
-                  <h4 className="font-bold text-red-800 dark:text-red-200">Atenção: Comorbidade</h4>
-                  <p>Cardiopatias e renopatias requerem taxas mais conservadoras e reavaliação frequente. Considere reduzir a taxa inicial e monitorar pressão arterial, diurese e sinais de sobrecarga.</p>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+        {/* Removido: plano de fluidoterapia (a pedido) */}
       </div>
     </div>
   );

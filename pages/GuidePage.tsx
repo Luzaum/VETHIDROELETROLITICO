@@ -3,6 +3,7 @@ import React from 'react';
 import { useParams, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { ELECTROLYTE_LIBRARY } from '../data/content';
 import { ContentRenderer } from '../components/ContentRenderer';
+import AlbuminCalculator from '../components/AlbuminCalculator';
 
 const GuideContent: React.FC = () => {
   const { topic } = useParams<{ topic: string }>();
@@ -41,6 +42,10 @@ const GuideContent: React.FC = () => {
         </div>
       </div>
       <ContentRenderer blocks={data.content} />
+      {/* Secção de Albumina (HSA) opcional abaixo do conteúdo padrão */}
+      <div className="mt-10">
+        <AlbuminCalculator />
+      </div>
     </div>
   );
 };

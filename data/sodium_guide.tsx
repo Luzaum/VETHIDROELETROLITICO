@@ -112,7 +112,7 @@ export const SODIUM_GUIDE_CONTENT: ContentBlock[] = [
         content: (
             <div className="overflow-x-auto">
                 <table className="w-full text-xs border-collapse">
-                    <thead className="bg-gray-700">
+                    <thead className="bg-gray-700 text-white">
                         <tr>
                             <th className="border border-gray-600 p-1">Tipo de Hiponatremia</th>
                             <th className="border border-gray-600 p-1">Status Volêmico</th>
@@ -247,7 +247,7 @@ export const SODIUM_GUIDE_CONTENT: ContentBlock[] = [
         content: (
             <div className="overflow-x-auto">
                 <table className="w-full text-xs border-collapse">
-                    <thead className="bg-gray-700">
+                    <thead className="bg-gray-700 text-white">
                         <tr>
                             <th className="border border-gray-600 p-1">Fluido</th>
                             <th className="border border-gray-600 p-1">[Na⁺] (mEq/L)</th>
@@ -429,7 +429,7 @@ export const SODIUM_GUIDE_CONTENT: ContentBlock[] = [
         content: (
             <div className="overflow-x-auto">
                 <table className="w-full text-xs border-collapse">
-                    <thead className="bg-gray-700">
+                    <thead className="bg-gray-700 text-white">
                         <tr>
                             <th className="border border-gray-600 p-1">Causa Principal</th>
                             <th className="border border-gray-600 p-1">Mecanismo</th>
@@ -553,7 +553,7 @@ export const SODIUM_GUIDE_CONTENT: ContentBlock[] = [
         content: (
             <div className="overflow-x-auto">
                 <table className="w-full text-xs border-collapse">
-                    <thead className="bg-gray-700">
+                    <thead className="bg-gray-700 text-white">
                         <tr>
                             <th className="border border-gray-600 p-1">Fluido</th>
                             <th className="border border-gray-600 p-1">[Na⁺] (mEq/L)</th>
