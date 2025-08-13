@@ -4,6 +4,96 @@ html, body, #root {
 }
 body {
   margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+}
+
+/* Tokens do tema Amber Onyx são fornecidos por styles/tokens.css */
+
+/* Botões de ajuda (?) */
+.help-button {
+  @apply inline-flex items-center justify-center w-5 h-5 ml-1 text-xs bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 cursor-help transition-colors;
+}
+
+.help-button:hover {
+  @apply bg-blue-200;
+}
+
+/* Melhorias na interface conforme guia */
+.vet-card {
+  @apply bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow;
+}
+
+.vet-button-primary {
+  @apply px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors;
+}
+
+.vet-button-secondary {
+  @apply px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors;
+}
+
+.vet-alert-warning {
+  @apply p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-md;
+}
+
+.vet-alert-danger {
+  @apply p-4 bg-red-50 border-l-4 border-red-400 rounded-md;
+}
+
+.vet-alert-info {
+  @apply p-4 bg-blue-50 border-l-4 border-blue-400 rounded-md;
+}
+
+.vet-alert-success {
+  @apply p-4 bg-green-50 border-l-4 border-green-400 rounded-md;
+}
+
+/* Melhorias para acessibilidade */
+.sr-only {
+  @apply absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0;
+}
+
+/* Animações suaves */
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Estilos para tabelas de dados médicos */
+.medical-table {
+  @apply w-full border-collapse bg-white rounded-lg overflow-hidden shadow-sm;
+}
+
+.medical-table th {
+  @apply bg-blue-600 text-white px-4 py-3 text-left font-semibold text-sm;
+}
+
+.medical-table td {
+  @apply px-4 py-3 border-b border-gray-200 text-sm;
+}
+
+.medical-table tr:hover {
+  @apply bg-gray-50;
+}
+
+/* Indicadores de valores laboratoriais */
+.lab-value-low {
+  @apply text-red-600 font-semibold;
+}
+
+.lab-value-normal {
+  @apply text-green-600 font-semibold;
+}
+
+.lab-value-high {
+  @apply text-orange-600 font-semibold;
+}
+
+.lab-value-critical {
+  @apply text-red-800 font-bold bg-red-100 px-2 py-1 rounded;
 }
 
 

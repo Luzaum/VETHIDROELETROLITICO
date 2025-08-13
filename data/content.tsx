@@ -42,8 +42,10 @@ const SODIUM_DATA: ElectrolyteData = {
     id: 'sodio',
     name: "Sódio (Na⁺)",
     normalValues: {
-        dog: "145–155 mEq/L",
-        cat: "150–160 mEq/L"
+        dog: "143–150 mEq/L",
+        cat: "149–158 mEq/L",
+        puppy: "Ligeiramente inferior devido à alimentação líquida",
+        elderly: "Risco aumentado de hipernatremia por diminuição da sede"
     },
     content: [
         { type: 'header', content: '👑 Sódio (Na⁺): Guia Prático' },
@@ -154,8 +156,10 @@ const POTASSIUM_DATA: ElectrolyteData = {
     id: 'potassio',
     name: "Potássio (K⁺)",
     normalValues: {
-        dog: "3.5–5.5 mEq/L",
-        cat: "3.5–5.5 mEq/L"
+        dog: "4.1–5.4 mEq/L",
+        cat: "3.8–5.5 mEq/L",
+        puppy: "Valores ligeiramente maiores por dieta láctea",
+        elderly: "Risco de hipocalemia por medicações (IECA, espironolactona)"
     },
     content: [
         { type: 'header', content: '⚡ Potássio (K⁺): Guia Prático' },
@@ -279,8 +283,8 @@ const CHLORIDE_DATA: ElectrolyteData = {
     id: 'cloro',
     name: "Cloreto (Cl⁻)",
     normalValues: {
-        dog: "105–115 mEq/L",
-        cat: "110–125 mEq/L"
+        dog: "106–114 mEq/L",
+        cat: "111–124 mEq/L"
     },
     content: [
         { type: 'header', content: '⚖️ Cloreto (Cl⁻): Guia Prático' },
@@ -397,8 +401,8 @@ const BICARBONATE_DATA: ElectrolyteData = {
     id: 'bicarbonato',
     name: "Bicarbonato (HCO₃⁻) e pH",
     normalValues: {
-        dog: "pH: 7.35–7.45, HCO₃⁻: 18–26 mEq/L",
-        cat: "pH: 7.35–7.45, HCO₃⁻: 17–22 mEq/L"
+        dog: "pH: 7.35–7.45, HCO₃⁻: 14–24 mEq/L",
+        cat: "pH: 7.35–7.45, HCO₃⁻: 14–20 mEq/L"
     },
     content: [
         { type: 'header', content: 'Bicarbonato (HCO₃⁻) e pH' },
@@ -421,28 +425,356 @@ const BICARBONATE_DATA: ElectrolyteData = {
     ]
 };
 
-const GLUCOSE_OSMOLARITY_DATA: ElectrolyteData = {
-    id: 'glicose-osmolaridade',
-    name: "Glicemia e Osmolaridade",
+const GLUCOSE_DATA: ElectrolyteData = {
+    id: 'glicemia',
+    name: "Glicemia",
     normalValues: {
-        dog: "Osm: ~290–310 mOsm/kg",
-        cat: "Osm: ~300–330 mOsm/kg"
+        dog: "68–104 mg/dL",
+        cat: "71–182 mg/dL",
+        puppy: "Valores inferiores - reservas limitadas de glicogênio"
     },
     content: [
-        { type: 'header', content: 'Glicemia e Osmolaridade' },
-        { type: 'subheader', content: 'Função e Importância' },
-        { type: 'paragraph', content: "A osmolaridade plasmática representa a concentração total de solutos e é crucial para o balanço hídrico celular. É determinada principalmente pelo sódio, glicose e ureia. Alterações significativas, especialmente na glicemia, podem levar a distúrbios osmóticos graves." },
-        { type: 'subheader', content: 'Hiperglicemia e Síndrome Hiperglicêmica Hiperosmolar (SHH)' },
-        { type: 'paragraph', content: <>A hiperglicemia severa (glicose {'>'} 600 mg/dL), como vista na <Highlight color="red">SHH</Highlight> (comum em gatos diabéticos) ou cetoacidose diabética (CDA), aumenta drasticamente a osmolaridade plasmática. Isso 'puxa' água para fora das células, causando desidratação celular grave (especialmente no cérebro) e diluição do sódio (pseudohiponatremia).</> },
-        { type: 'formula', content: "Osmolaridade Calculada (mOsm/kg) = 2 * (Na⁺ + K⁺) + Glicose/18 + Ureia/2.8" },
-        { type: 'warning', title: 'Correção do Sódio na Hiperglicemia', content: "Para cada 100 mg/dL de aumento na glicose acima do normal, o sódio medido deve ser corrigido para cima em aproximadamente 1.6 a 2.4 mEq/L para estimar o sódio real." },
-        { type: 'subheader', content: 'Tratamento de Distúrbios Hiperosmolares' },
-        { type: 'paragraph', content: "A correção deve ser gradual para evitar edema cerebral. O tratamento envolve:" },
-        { type: 'list', content: <>
-            <li><strong>Fluidoterapia Cautelosa:</strong> Inicialmente com NaCl 0.9% para restaurar a perfusão, mesmo que o sódio esteja alto.</li>
-            <li><strong>Insulinoterapia:</strong> Em baixas doses e infusão contínua após a reidratação inicial. O objetivo é baixar a glicose lentamente (50-100 mg/dL por hora).</li>
-            <li><strong>Reposição de Eletrólitos:</strong> Monitorar e repor potássio, fósforo e magnésio, que tendem a cair rapidamente com a insulinoterapia.</li>
-        </> }
+        { type: 'header', content: '🍯 Glicemia: Guia Prático' },
+        
+        { type: 'warning', title: '⚠️ CONCEITO CHAVE', content: 'Filhotes têm reservas limitadas de glicogênio e podem desenvolver hipoglicemia rapidamente durante jejum ou estresse.' },
+        
+        { type: 'subheader', content: '📉 HIPOGLICEMIA - Quando está baixa' },
+        
+        { type: 'subheader', content: 'Principais Situações:' },
+        { type: 'list', content: (
+            <>
+                <li><strong>Insulinoma:</strong> Tumor pancreático que secreta insulina</li>
+                <li><strong>Hepatopatia:</strong> Fígado não produz glicose adequadamente</li>
+                <li><strong>Septicemia:</strong> Consumo aumentado de glicose</li>
+                <li><strong>Doença de Addison:</strong> Deficiência de cortisol</li>
+                <li><strong>Filhotes:</strong> Jejum prolongado, estresse, parasitismo</li>
+                <li><strong>Iatrogênica:</strong> Overdose de insulina</li>
+            </>
+        )},
+        
+        { type: 'subheader', content: 'Sinais Clínicos:' },
+        { type: 'list', content: (
+            <>
+                <li>Fraqueza, letargia, tremores</li>
+                <li><strong>Sinais neurológicos:</strong> Convulsões, coma</li>
+                <li>Taquicardia, sudorese (raro em cães/gatos)</li>
+                <li>Fome intensa (se consciente)</li>
+            </>
+        )},
+        
+        { type: 'warning', title: '🚨 TRATAMENTO DE EMERGÊNCIA', content: (
+            <>
+                <strong>Em casa:</strong>
+                <br/>• Friccionar mel ou xarope de milho na mucosa oral
+                <br/><br/>
+                <strong>No hospital:</strong>
+                <br/>• <strong>Dextrose 50%:</strong> 0.5-1 mL/kg diluída 1:2 IV lentamente
+                <br/>• <strong>Repetir se necessário</strong> a cada 15-30 min
+                <br/>• <strong>Infusão contínua:</strong> Dextrose 2.5-5% para manter 60-150 mg/dL
+                <br/>• <strong>Neonatos:</strong> Podem precisar dextrose 12.5% (diluir 50% em 1:3)
+            </>
+        )},
+        
+        { type: 'subheader', content: 'Para Hipoglicemia Refratária:' },
+        { type: 'list', content: (
+            <>
+                <li><strong>Glucagon:</strong> 50 ng/kg IV bolus + 15 ng/kg/min CRI</li>
+                <li><strong>Corticoides:</strong> Se suspeita de hipoadrenocorticismo</li>
+                <li>Investigar causa base (insulinoma, hepatopatia)</li>
+            </>
+        )},
+        
+        { type: 'subheader', content: '📈 HIPERGLICEMIA - Quando está alta' },
+        
+        { type: 'subheader', content: 'Principais Situações:' },
+        { type: 'list', content: (
+            <>
+                <li><strong>Diabetes mellitus:</strong> Deficiência de insulina</li>
+                <li><strong>Cetoacidose diabética:</strong> Complicação do diabetes</li>
+                <li><strong>Pancreatite:</strong> Inflamação destrói células beta</li>
+                <li><strong>Estresse (gatos):</strong> Hiperglicemia de estresse pode chegar a 400 mg/dL</li>
+                <li><strong>Medicações:</strong> Glicocorticoides, dextrose excessiva</li>
+            </>
+        )},
+        
+        { type: 'subheader', content: 'Sinais Clínicos:' },
+        { type: 'list', content: (
+            <>
+                <li><strong>PU/PD:</strong> Diurese osmótica</li>
+                <li>Perda de peso com polifagia</li>
+                <li>Desidratação, letargia</li>
+                <li><strong>CAD:</strong> Vômito, hálito cetônico, taquipneia</li>
+            </>
+        )},
+        
+        { type: 'warning', title: '💧 TRATAMENTO DA HIPERGLICEMIA', content: (
+            <>
+                <strong>1. Fluidoterapia:</strong>
+                <br/>• NaCl 0.9% ou Ringer Lactato (sem dextrose inicialmente)
+                <br/>• Corrigir desidratação primeiro
+                <br/><br/>
+                <strong>2. Insulinoterapia:</strong>
+                <br/>• Insulina regular IV/IM em bolus e CRI
+                <br/>• Meta: reduzir 50-100 mg/dL por hora
+                <br/>• Quando glicose ≤ 250 mg/dL: adicionar dextrose 2.5-5%
+                <br/><br/>
+                <strong>3. Monitorar eletrólitos:</strong>
+                <br/>• K⁺, P, Mg²⁺ caem com insulina
+                <br/>• Suplementar conforme necessário
+            </>
+        )},
+        
+        { type: 'subheader', content: '🧮 Fórmula de Correção do Sódio:' },
+        { type: 'formula', content: 'Na⁺ Corrigido = Na⁺ medido + 1.6 × (Glicose - 100)/100' },
+        
+        { type: 'subheader', content: '⚠️ Lembretes Importantes:' },
+        { type: 'list', content: (
+            <>
+                <li>Filhotes desenvolvem hipoglicemia rapidamente</li>
+                <li>Gatos podem ter hiperglicemia de estresse (até 400 mg/dL)</li>
+                <li>CAD: corrigir desidratação antes de insulina</li>
+                <li>Monitorar glicemia a cada 30 min durante tratamento</li>
+                <li>Evitar correção muito rápida - risco de edema cerebral</li>
+            </>
+        )}
+    ]
+};
+
+const MAGNESIUM_DATA: ElectrolyteData = {
+    id: 'magnesio',
+    name: "Magnésio (Mg²⁺)",
+    normalValues: {
+        dog: "1.5–2.1 mEq/L",
+        cat: "1.7–2.2 mEq/L"
+    },
+    content: [
+        { type: 'header', content: '🧲 Magnésio (Mg²⁺): Guia Prático' },
+        
+        { type: 'warning', title: '⚠️ CONCEITO CHAVE', content: 'Magnésio é cofator essencial para bomba Na⁺/K⁺-ATPase. Hipomagnesemia frequentemente causa hipocalemia RESISTENTE ao tratamento.' },
+        
+        { type: 'subheader', content: '📉 HIPOMAGNESEMIA - Quando está baixo' },
+        
+        { type: 'subheader', content: 'Principais Situações:' },
+        { type: 'list', content: (
+            <>
+                <li><strong>Anorexia prolongada:</strong> Qualquer doença que diminua apetite</li>
+                <li><strong>Diuréticos:</strong> Furosemida, tiazídicos</li>
+                <li><strong>Hipercalcemia:</strong> Compete com magnésio</li>
+                <li><strong>Hipoparatireoidismo:</strong> Após cirurgia de tireoide</li>
+                <li><strong>Lactação:</strong> Tetania da lactação (comum em ruminantes)</li>
+                <li><strong>Síndrome de realimentação:</strong> Deslocamento intracelular</li>
+            </>
+        )},
+        
+        { type: 'subheader', content: 'Sinais Clínicos:' },
+        { type: 'list', content: (
+            <>
+                <li>Tremores, fasciculações musculares</li>
+                <li><strong>Convulsões:</strong> Especialmente tetânicas</li>
+                <li>Fraqueza, letargia</li>
+                <li><strong>Arritmias cardíacas</strong></li>
+                <li><strong>Hipocalemia resistente:</strong> Não melhora só com K⁺</li>
+                <li><strong>Hipocalcemia associada</strong></li>
+            </>
+        )},
+        
+        { type: 'warning', title: '💉 TRATAMENTO DA HIPOMAGNESEMIA', content: (
+            <>
+                <strong>Sulfato de Magnésio IV:</strong>
+                <br/>• <strong>Dose:</strong> 0.1-0.3 mEq/kg/h (1.6-2.5 mg/kg/h)
+                <br/>• <strong>Diluir em NaCl 0.9% ou dextrose 5%</strong>
+                <br/>• <strong>Infundir lentamente</strong> (em 6-8 horas)
+                <br/><br/>
+                <strong>Via Oral (casos leves):</strong>
+                <br/>• Óxido de magnésio: 10-20 mg/kg/dia
+                <br/>• Dividir em 2-3 doses
+                <br/><br/>
+                <strong>Monitoramento:</strong>
+                <br/>• Reflexos patelares (hipermagnesemia causa perda)
+                <br/>• Creatinina (risco em insuficiência renal)
+                <br/>• Mg²⁺ sérico a cada 12-24h
+            </>
+        )},
+        
+        { type: 'subheader', content: '📈 HIPERMAGNESEMIA - Quando está alto' },
+        
+        { type: 'subheader', content: 'Principais Situações:' },
+        { type: 'list', content: (
+            <>
+                <li><strong>Suplementação iatrogênica:</strong> Overdose de sulfato de Mg</li>
+                <li><strong>Insuficiência renal:</strong> Rim não excreta adequadamente</li>
+                <li><strong>Lise celular:</strong> Liberação de Mg intracelular</li>
+                <li><strong>Antiácidos:</strong> Uso excessivo de hidróxido de magnésio</li>
+            </>
+        )},
+        
+        { type: 'subheader', content: 'Sinais Clínicos:' },
+        { type: 'list', content: (
+            <>
+                <li><strong>Depressão do SNC:</strong> Sedação, coma</li>
+                <li><strong>Bradicardia, hipotensão</strong></li>
+                <li><strong>Perda de reflexos:</strong> Primeiro patelar, depois outros</li>
+                <li><strong>Paralisia respiratória:</strong> Em casos graves</li>
+            </>
+        )},
+        
+        { type: 'warning', title: '🚨 TRATAMENTO DA HIPERMAGNESEMIA', content: (
+            <>
+                <strong>1. Suspender administração de Mg</strong>
+                <br/><br/>
+                <strong>2. Gluconato de Cálcio 10%:</strong>
+                <br/>• 0.5-1 mL/kg IV lentamente
+                <br/>• Antagoniza efeitos do magnésio
+                <br/><br/>
+                <strong>3. Fluidoterapia e diuréticos:</strong>
+                <br/>• Se função renal normal
+                <br/>• Furosemida 1-2 mg/kg
+                <br/><br/>
+                <strong>4. Hemodiálise:</strong>
+                <br/>• Em casos graves com insuficiência renal
+            </>
+        )},
+        
+        { type: 'subheader', content: '⚠️ Lembretes Importantes:' },
+        { type: 'list', content: (
+            <>
+                <li>Sempre suspeitar em hipocalemia resistente</li>
+                <li>Lactação aumenta muito as necessidades</li>
+                <li>Monitorar reflexos durante suplementação</li>
+                <li>Cuidado redobrado em insuficiência renal</li>
+                <li>Magnésio ionizado é a fração ativa</li>
+            </>
+        )}
+    ]
+};
+
+const PHOSPHORUS_DATA: ElectrolyteData = {
+    id: 'fosforo',
+    name: "Fósforo (P) / Fosfato (PO₄³⁻)",
+    normalValues: {
+        dog: "2.7–5.4 mg/dL",
+        cat: "2.6–5.5 mg/dL",
+        puppy: "Valores fisiologicamente mais altos devido à deposição óssea"
+    },
+    content: [
+        { type: 'header', content: '⚡ Fósforo (P): Guia Prático' },
+        
+        { type: 'warning', title: '⚠️ CONCEITO CHAVE', content: 'Fósforo é essencial para ATP, função eritrocitária e estrutura óssea. Filhotes têm valores naturalmente mais altos.' },
+        
+        { type: 'subheader', content: '📉 HIPOFOSFATEMIA - Quando está baixo' },
+        
+        { type: 'subheader', content: 'Principais Situações:' },
+        { type: 'list', content: (
+            <>
+                <li><strong>Síndrome de realimentação:</strong> Deslocamento intracelular massivo</li>
+                <li><strong>Insulinoterapia:</strong> CAD, hiperglicemia - insulina leva P para dentro da célula</li>
+                <li><strong>Alcalose respiratória:</strong> Hiperventilação</li>
+                <li><strong>Diuréticos:</strong> Perda renal aumentada</li>
+                <li><strong>Hiperparatireoidismo:</strong> PTH aumenta excreção renal</li>
+                <li><strong>Desnutrição:</strong> Ingestão inadequada</li>
+            </>
+        )},
+        
+        { type: 'subheader', content: 'Sinais Clínicos:' },
+        { type: 'list', content: (
+            <>
+                <li><strong>Fraqueza muscular:</strong> Falta de ATP</li>
+                <li><strong>Hemólise:</strong> Eritrócitos ficam frágeis</li>
+                <li><strong>Depressão, letargia</strong></li>
+                <li><strong>Convulsões:</strong> Em casos graves</li>
+                <li><strong>Imunossupressão:</strong> Função leucocitária comprometida</li>
+            </>
+        )},
+        
+        { type: 'warning', title: '💉 TRATAMENTO DA HIPOFOSFATEMIA', content: (
+            <>
+                <strong>Via Oral (preferida):</strong>
+                <br/>• <strong>Fosfato monossódico ou dissódico</strong>
+                <br/>• <strong>Fosfato monopotássico</strong> se hipocalemia concomitante
+                <br/>• Dose: 0.03-0.12 mmol/kg/dia dividida
+                <br/><br/>
+                <strong>Via IV (casos graves):</strong>
+                <br/>• <strong>K-Phos® (fosfato de potássio)</strong>
+                <br/>• Contém 3 mmol P + 4.4 mEq K por mL
+                <br/>• <strong>Taxa:</strong> 0.01-0.12 mmol/kg/h conforme gravidade
+                <br/>• <strong>INCOMPATÍVEL com Ringer Lactato</strong> (contém cálcio)
+                <br/>• Usar NaCl 0.9% ou dextrose 5%
+            </>
+        )},
+        
+        { type: 'subheader', content: 'Taxas de Infusão IV por Gravidade:' },
+        { type: 'table', content: (
+            <div className="overflow-x-auto">
+                <table className="w-full text-sm border-collapse">
+                    <thead className="bg-gray-700">
+                        <tr>
+                            <th className="border border-gray-600 p-2">Gravidade</th>
+                            <th className="border border-gray-600 p-2">P sérico (mg/dL)</th>
+                            <th className="border border-gray-600 p-2">Taxa (mmol/kg/h)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td className="border border-gray-600 p-2">Leve</td><td className="border border-gray-600 p-2">2.0-2.5</td><td className="border border-gray-600 p-2">0.01-0.02</td></tr>
+                        <tr><td className="border border-gray-600 p-2">Moderada</td><td className="border border-gray-600 p-2">1.5-2.0</td><td className="border border-gray-600 p-2">0.03-0.06</td></tr>
+                        <tr><td className="border border-gray-600 p-2">Severa</td><td className="border border-gray-600 p-2">{"<"} 1.5</td><td className="border border-gray-600 p-2">0.06-0.12</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        )},
+        
+        { type: 'subheader', content: '📈 HIPERFOSFATEMIA - Quando está alto' },
+        
+        { type: 'subheader', content: 'Principais Situações:' },
+        { type: 'list', content: (
+            <>
+                <li><strong>Insuficiência renal crônica:</strong> Causa mais comum em animais</li>
+                <li><strong>Hemoconcentração:</strong> Desidratação</li>
+                <li><strong>Hipervitaminose D:</strong> Intoxicação, rodenticidas</li>
+                <li><strong>Lise celular:</strong> Quimioterapia, rabdomiólise</li>
+                <li><strong>Acidose metabólica:</strong> Saída de P das células</li>
+            </>
+        )},
+        
+        { type: 'subheader', content: 'Consequências:' },
+        { type: 'list', content: (
+            <>
+                <li><strong>Hipocalcemia:</strong> Precipitação de fosfato de cálcio</li>
+                <li><strong>Tetania:</strong> Por hipocalcemia secundária</li>
+                <li><strong>Mineralização tecidual:</strong> Se Ca × P {">"} 70</li>
+                <li><strong>Progressão da doença renal</strong></li>
+            </>
+        )},
+        
+        { type: 'warning', title: '💧 TRATAMENTO DA HIPERFOSFATEMIA', content: (
+            <>
+                <strong>1. Tratar causa primária:</strong>
+                <br/>• Fluidoterapia para desidratação
+                <br/>• Controle da doença renal
+                <br/><br/>
+                <strong>2. Quelantes de fósforo:</strong>
+                <br/>• <strong>Hidróxido de alumínio:</strong> 30-100 mg/kg/dia com comida
+                <br/>• <strong>Sevelamer:</strong> Quelante não-cálcico
+                <br/><br/>
+                <strong>3. Dieta renal:</strong>
+                <br/>• Restrição de fósforo
+                <br/>• Suplementação de cálcio se necessário
+                <br/><br/>
+                <strong>4. Em casos agudos com hipocalcemia:</strong>
+                <br/>• Gluconato de cálcio IV
+                <br/>• Correção da acidose
+            </>
+        )},
+        
+        { type: 'subheader', content: '⚠️ Lembretes Importantes:' },
+        { type: 'list', content: (
+            <>
+                <li>Filhotes têm P naturalmente mais alto</li>
+                <li>K-Phos é incompatível com fluidos contendo cálcio</li>
+                <li>Monitorar Ca × P (deve ser {"<"} 70)</li>
+                <li>Síndrome de realimentação é emergência</li>
+                <li>Hiperfosfatemia crônica acelera doença renal</li>
+            </>
+        )}
     ]
 };
 
@@ -557,8 +889,256 @@ export const ELECTROLYTE_LIBRARY: ElectrolyteData[] = [
     POTASSIUM_DATA,
     CHLORIDE_DATA,
     BICARBONATE_DATA,
-    GLUCOSE_OSMOLARITY_DATA,
+    GLUCOSE_DATA,
+    MAGNESIUM_DATA,
+    PHOSPHORUS_DATA,
     CALCIUM_DATA
+];
+
+// Dados das doenças e protocolos terapêuticos
+export const DISEASE_PROTOCOLS = [
+    {
+        id: 'addison',
+        name: 'Hipoadrenocorticismo (Doença de Addison)',
+        electrolytes: ['Hiponatremia', 'Hipercalemia', 'Hipocloremia', 'Acidose'],
+        content: [
+            { type: 'header', content: '🏥 Doença de Addison - Protocolo Completo' },
+            
+            { type: 'subheader', content: 'Fisiopatologia:' },
+            { type: 'paragraph', content: 'Deficiência de mineralocorticoides (aldosterona) e glicocorticoides (cortisol). A falta de aldosterona causa perda de sódio e retenção de potássio.' },
+            
+            { type: 'subheader', content: 'Achados Laboratoriais Típicos:' },
+            { type: 'list', content: (
+                <>
+                    <li><strong>Na⁺/K⁺ {"<"} 27:</strong> Altamente sugestivo (normal {">"} 30)</li>
+                    <li><strong>Hiponatremia:</strong> Geralmente 120-135 mEq/L</li>
+                    <li><strong>Hipercalemia:</strong> 5.5-8.0 mEq/L</li>
+                    <li><strong>Hipocloremia e acidose metabólica leve</strong></li>
+                    <li><strong>Azotemia pré-renal:</strong> Por desidratação</li>
+                    <li><strong>Hipercalcemia:</strong> Em 30% dos casos</li>
+                </>
+            )},
+            
+            { type: 'warning', title: '🚨 TRATAMENTO DE EMERGÊNCIA', content: (
+                <>
+                    <strong>1. Fluidoterapia agressiva:</strong>
+                    <br/>• <strong>NaCl 0.9%</strong> a 2-3x taxa de manutenção
+                    <br/>• Corrige hiponatremia e hipovolemia
+                    <br/>• Evitar fluidos com potássio inicialmente
+                    <br/><br/>
+                    <strong>2. Tratar hipercalemia se {">"} 6.5 mEq/L:</strong>
+                    <br/>• Gluconato de cálcio 10%: 0.5-1 mL/kg IV lento
+                    <br/>• Dextrose + insulina se necessário
+                    <br/>• ECG contínuo
+                    <br/><br/>
+                    <strong>3. Corticoterapia:</strong>
+                    <br/>• <strong>Hidrocortisona:</strong> 5-10 mg/kg IV (preferida)
+                    <br/>• <strong>Prednisolona:</strong> 1-2 mg/kg IV se hidrocortisona indisponível
+                    <br/>• <strong>Dexametasona:</strong> Evitar - interfere com teste ACTH
+                </>
+            )},
+            
+            { type: 'subheader', content: 'Tratamento de Longo Prazo:' },
+            { type: 'list', content: (
+                <>
+                    <li><strong>Fludrocortisona:</strong> 0.01-0.02 mg/kg/dia VO</li>
+                    <li><strong>Prednisolona:</strong> 0.2-0.5 mg/kg/dia VO</li>
+                    <li><strong>Monitorar:</strong> Eletrólitos semanalmente no início</li>
+                    <li><strong>Meta:</strong> Na⁺/K⁺ entre 30-35</li>
+                </>
+            )}
+        ]
+    },
+    {
+        id: 'dka',
+        name: 'Cetoacidose Diabética (CAD)',
+        electrolytes: ['Hipernatremia aparente', 'Hipocalemia', 'Hipofosfatemia', 'Acidose'],
+        content: [
+            { type: 'header', content: '🍯 Cetoacidose Diabética - Protocolo Completo' },
+            
+            { type: 'subheader', content: 'Fisiopatologia:' },
+            { type: 'paragraph', content: 'Deficiência absoluta ou relativa de insulina causa hiperglicemia, cetogênese e acidose metabólica. Diurese osmótica leva à desidratação e perdas eletrolíticas.' },
+            
+            { type: 'subheader', content: 'Achados Laboratoriais:' },
+            { type: 'list', content: (
+                <>
+                    <li><strong>Hiperglicemia:</strong> Geralmente {">"} 250 mg/dL</li>
+                    <li><strong>Cetonemia/cetonúria:</strong> Positiva</li>
+                    <li><strong>Acidose metabólica:</strong> pH {"<"} 7.3, HCO₃⁻ {"<"} 15</li>
+                    <li><strong>Pseudohipernatremia:</strong> Corrigir pela glicose</li>
+                    <li><strong>Hipocalemia total:</strong> Mesmo com K⁺ sérico normal</li>
+                    <li><strong>Hipofosfatemia:</strong> Desenvolve com insulinoterapia</li>
+                </>
+            )},
+            
+            { type: 'warning', title: '🚨 PROTOCOLO DE TRATAMENTO', content: (
+                <>
+                    <strong>FASE 1 - Estabilização (0-6h):</strong>
+                    <br/>• <strong>Fluidoterapia:</strong> NaCl 0.9% ou Ringer Lactato
+                    <br/>• Taxa: 1.5-2x manutenção (sem insulina ainda)
+                    <br/>• Corrigir desidratação primeiro
+                    <br/><br/>
+                    <strong>FASE 2 - Insulinoterapia (após 2-4h):</strong>
+                    <br/>• <strong>Insulina regular:</strong> 0.1 U/kg/h CRI
+                    <br/>• <strong>Meta:</strong> Reduzir glicose 50-100 mg/dL/h
+                    <br/>• <strong>Quando glicose ≤ 250:</strong> Adicionar dextrose 2.5-5%
+                    <br/><br/>
+                    <strong>FASE 3 - Reposição eletrolítica:</strong>
+                    <br/>• <strong>KCl:</strong> 20-40 mEq/L (insulina causa hipocalemia)
+                    <br/>• <strong>K-Phos:</strong> Se hipofosfatemia {"<"} 2.0 mg/dL
+                    <br/>• <strong>MgSO₄:</strong> Se hipomagnesemia
+                </>
+            )},
+            
+            { type: 'subheader', content: 'Monitoramento:' },
+            { type: 'list', content: (
+                <>
+                    <li><strong>Glicemia:</strong> A cada 1-2h inicialmente</li>
+                    <li><strong>Eletrólitos:</strong> A cada 4-6h</li>
+                    <li><strong>Gasometria:</strong> A cada 6-8h</li>
+                    <li><strong>Cetonas:</strong> Devem negativar em 12-24h</li>
+                </>
+            )}
+        ]
+    },
+    {
+        id: 'ckd',
+        name: 'Doença Renal Crônica',
+        electrolytes: ['Hiperfosfatemia', 'Hipocalcemia', 'Acidose metabólica', 'Hiper/hipocalemia'],
+        content: [
+            { type: 'header', content: '🔬 Doença Renal Crônica - Manejo Eletrolítico' },
+            
+            { type: 'subheader', content: 'Distúrbios Eletrolíticos Típicos:' },
+            { type: 'list', content: (
+                <>
+                    <li><strong>Hiperfosfatemia:</strong> Rim não excreta P adequadamente</li>
+                    <li><strong>Hipocalcemia:</strong> Secundária ao ↑P e ↓calcitriol</li>
+                    <li><strong>Acidose metabólica:</strong> Perda de HCO₃⁻ renal</li>
+                    <li><strong>Hipocalemia:</strong> Especialmente em gatos (poliúria)</li>
+                    <li><strong>Hipercalemia:</strong> Em estágios avançados (oligúria)</li>
+                </>
+            )},
+            
+            { type: 'warning', title: '💊 PROTOCOLO DE TRATAMENTO', content: (
+                <>
+                    <strong>1. Controle do Fósforo:</strong>
+                    <br/>• <strong>Dieta renal:</strong> Restrição de P
+                    <br/>• <strong>Quelantes:</strong> Hidróxido de alumínio 30-100 mg/kg/dia
+                    <br/>• <strong>Meta:</strong> P {"<"} 4.5 mg/dL (cães), {"<"} 5.0 (gatos)
+                    <br/><br/>
+                    <strong>2. Correção da Acidose:</strong>
+                    <br/>• <strong>Bicarbonato de sódio:</strong> 8-12 mg/kg/dia VO
+                    <br/>• <strong>Meta:</strong> HCO₃⁻ 18-24 mEq/L
+                    <br/><br/>
+                    <strong>3. Manejo do Potássio:</strong>
+                    <br/>• <strong>Hipocalemia:</strong> Gluconato de K⁺ 2-6 mEq/dia VO
+                    <br/>• <strong>Hipercalemia:</strong> Dieta renal, quelantes de K⁺
+                </>
+            )}
+        ]
+    },
+    {
+        id: 'refeeding',
+        name: 'Síndrome de Realimentação',
+        electrolytes: ['Hipofosfatemia', 'Hipocalemia', 'Hipomagnesemia', 'Hipoglicemia'],
+        content: [
+            { type: 'header', content: '🍽️ Síndrome de Realimentação - Protocolo' },
+            
+            { type: 'subheader', content: 'Fisiopatologia:' },
+            { type: 'paragraph', content: 'Reintrodução rápida de carboidratos após jejum prolongado causa liberação de insulina, que desloca P, K⁺ e Mg²⁺ para dentro das células, causando depleção sérica grave.' },
+            
+            { type: 'subheader', content: 'Pacientes de Risco:' },
+            { type: 'list', content: (
+                <>
+                    <li>Anorexia {">"} 5-7 dias</li>
+                    <li>Desnutrição severa</li>
+                    <li>Animais resgatados</li>
+                    <li>Pós-cirúrgico com jejum prolongado</li>
+                </>
+            )},
+            
+            { type: 'warning', title: '🚨 PREVENÇÃO E TRATAMENTO', content: (
+                <>
+                    <strong>1. Reintrodução gradual:</strong>
+                    <br/>• Começar com 25-50% das necessidades calóricas
+                    <br/>• Aumentar gradualmente em 3-5 dias
+                    <br/><br/>
+                    <strong>2. Suplementação profilática:</strong>
+                    <br/>• <strong>K-Phos:</strong> Para P e K⁺
+                    <br/>• <strong>MgSO₄:</strong> 0.1-0.2 mEq/kg/h
+                    <br/>• <strong>Tiamina:</strong> 25-50 mg IM/dia
+                    <br/><br/>
+                    <strong>3. Monitoramento intensivo:</strong>
+                    <br/>• Eletrólitos a cada 6-12h nos primeiros 3 dias
+                    <br/>• ECG se alterações eletrolíticas
+                </>
+            )}
+        ]
+    }
+];
+
+// Sistema de compatibilidade de fluidos
+export const FLUID_COMPATIBILITY = [
+    {
+        id: 'kcl',
+        name: 'Cloreto de Potássio (KCl)',
+        compatible: ['NaCl 0.9%', 'Ringer Lactato', 'Plasmalyte', 'Dextrose 5%', 'Dextrose 2.5%'],
+        incompatible: [],
+        warnings: [
+            'NUNCA administrar sem diluição adequada',
+            'Taxa máxima: 0.5 mEq/kg/h',
+            'Misturar bem a bolsa após adição',
+            'Monitorar ECG se hipercalemia prévia'
+        ]
+    },
+    {
+        id: 'k_phos',
+        name: 'Fosfato de Potássio (K-Phos)',
+        compatible: ['NaCl 0.9%', 'Dextrose 5%', 'Dextrose 2.5%'],
+        incompatible: ['Ringer Lactato', 'Plasmalyte'],
+        warnings: [
+            'INCOMPATÍVEL com fluidos contendo cálcio',
+            'Precipitação com Ringer Lactato',
+            'Taxa máxima: 0.12 mmol/kg/h',
+            'Contém 4.4 mEq K+ por mL'
+        ]
+    },
+    {
+        id: 'calcium_gluconate',
+        name: 'Gluconato de Cálcio 10%',
+        compatible: ['NaCl 0.9%', 'Dextrose 5%'],
+        incompatible: ['Bicarbonato de Sódio', 'Fosfatos'],
+        warnings: [
+            'NUNCA administrar SC (necrose)',
+            'Infundir muito lentamente (10-20 min)',
+            'Monitorar ECG durante infusão',
+            'Incompatível com bicarbonato'
+        ]
+    },
+    {
+        id: 'sodium_bicarbonate',
+        name: 'Bicarbonato de Sódio 8.4%',
+        compatible: ['NaCl 0.9%', 'Dextrose 5%'],
+        incompatible: ['Gluconato de Cálcio', 'Ringer Lactato'],
+        warnings: [
+            'Sempre diluir antes da infusão',
+            'Incompatível com cálcio',
+            'Risco de hipernatremia',
+            'Administrar ¼ a ⅓ do déficit'
+        ]
+    },
+    {
+        id: 'magnesium_sulfate',
+        name: 'Sulfato de Magnésio',
+        compatible: ['NaCl 0.9%', 'Dextrose 5%', 'Ringer Lactato'],
+        incompatible: [],
+        warnings: [
+            'Monitorar reflexos patelares',
+            'Cuidado em insuficiência renal',
+            'Taxa: 0.1-0.3 mEq/kg/h',
+            'Infundir lentamente (6-8h)'
+        ]
+    }
 ];
 
 export const FORMULARY_LIBRARY: FormularyItem[] = [
@@ -602,6 +1182,105 @@ export const FORMULARY_LIBRARY: FormularyItem[] = [
                 <p><strong>SEMPRE</strong> misture a bolsa de fluido vigorosamente após adicionar o KCl para garantir uma diluição homogênea.</p>
                 <p>A taxa de infusão <strong>NÃO DEVE EXCEDER 0.5 mEq/kg/hora</strong>.</p>
             </>}
+        ]
+    },
+    {
+        id: 'ringer_lactato',
+        name: 'Ringer Lactato',
+        content: [
+            { type: 'header', content: 'Ringer Lactato (Solução de Hartmann)' },
+            { type: 'paragraph', content: 'Cristaloide balanceado, isotônico, que mimetiza melhor a composição eletrolítica do plasma.'},
+            { type: 'subheader', content: 'Composição'},
+            { type: 'list', content: <>
+                <li>Sódio (Na⁺): 130 mEq/L</li>
+                <li>Cloreto (Cl⁻): 109 mEq/L</li>
+                <li>Potássio (K⁺): 4 mEq/L</li>
+                <li>Cálcio (Ca²⁺): 3 mEq/L</li>
+                <li>Lactato: 28 mEq/L (convertido em bicarbonato)</li>
+                <li>Osmolaridade: ~273 mOsm/L</li>
+            </>},
+            { type: 'subheader', content: 'Vantagens'},
+            { type: 'list', content: <>
+                <li><strong>Balanceado:</strong> Menos risco de acidose hiperclorêmica</li>
+                <li><strong>Lactato:</strong> Convertido em bicarbonato pelo fígado</li>
+                <li><strong>Uso geral:</strong> Adequado para maioria das situações</li>
+            </>},
+            { type: 'warning', title: 'Precauções', content: 'Evitar em hepatopatia severa (metabolismo do lactato comprometido) e hipercalemia (contém K⁺). Não misturar com fosfatos (precipitação com cálcio).'}
+        ]
+    },
+    {
+        id: 'plasmalyte',
+        name: 'Plasmalyte/Normosol',
+        content: [
+            { type: 'header', content: 'Plasmalyte (Normosol-R)' },
+            { type: 'paragraph', content: 'Cristaloide balanceado com composição mais próxima ao plasma que o Ringer Lactato.'},
+            { type: 'subheader', content: 'Composição'},
+            { type: 'list', content: <>
+                <li>Sódio (Na⁺): 140 mEq/L</li>
+                <li>Cloreto (Cl⁻): 98 mEq/L</li>
+                <li>Potássio (K⁺): 5 mEq/L</li>
+                <li>Magnésio (Mg²⁺): 3 mEq/L</li>
+                <li>Acetato: 27 mEq/L</li>
+                <li>Gluconato: 23 mEq/L</li>
+            </>},
+            { type: 'subheader', content: 'Indicações Especiais'},
+            { type: 'list', content: <>
+                <li><strong>Acidose hiperclorêmica:</strong> Menor teor de Cl⁻</li>
+                <li><strong>Hepatopatia:</strong> Não depende do fígado para metabolismo</li>
+                <li><strong>Grandes volumes:</strong> Menor risco de distúrbios ácido-base</li>
+            </>},
+            { type: 'warning', title: 'Cuidados', content: 'Contém K⁺ e Mg²⁺ - evitar em hipercalemia e hipermagnesemia. Mais caro que outras soluções.'}
+        ]
+    },
+    {
+        id: 'dextrose5',
+        name: 'Dextrose 5% em Água',
+        content: [
+            { type: 'header', content: 'Dextrose 5% em Água (D5W)' },
+            { type: 'paragraph', content: 'Solução hipotônica que fornece água livre e glicose. Osmolaridade inicial de ~278 mOsm/L, mas torna-se hipotônica após metabolização da glicose.'},
+            { type: 'subheader', content: 'Composição'},
+            { type: 'list', content: <>
+                <li>Dextrose: 50 g/L (5%)</li>
+                <li>Calorias: ~200 kcal/L</li>
+                <li>Sem eletrólitos</li>
+            </>},
+            { type: 'subheader', content: 'Indicações'},
+            { type: 'list', content: <>
+                <li><strong>Hipernatremia:</strong> Fornece água livre</li>
+                <li><strong>Hipoglicemia:</strong> Manutenção da glicemia</li>
+                <li><strong>Veículo:</strong> Para medicamentos incompatíveis com eletrólitos</li>
+                <li><strong>Nutrição:</strong> Suporte calórico mínimo</li>
+            </>},
+            { type: 'warning', title: 'Precauções', content: 'NUNCA usar como único fluido de reposição. Pode causar hiponatremia e edema cerebral. Monitorar glicemia - pode causar hiperglicemia em diabéticos.'}
+        ]
+    },
+    {
+        id: 'bicarbonato',
+        name: 'Bicarbonato de Sódio 8.4%',
+        content: [
+            { type: 'header', content: 'Bicarbonato de Sódio 8.4%' },
+            { type: 'paragraph', content: 'Solução alcalinizante para correção de acidose metabólica grave.'},
+            { type: 'subheader', content: 'Concentração'},
+            { type: 'list', content: <>
+                <li><strong>Bicarbonato:</strong> 1 mEq/mL (84 mg/mL)</li>
+                <li><strong>Sódio:</strong> 1 mEq/mL</li>
+                <li><strong>Osmolaridade:</strong> ~2000 mOsm/L (hipertônica)</li>
+            </>},
+            { type: 'subheader', content: 'Indicações'},
+            { type: 'list', content: <>
+                <li><strong>Acidose severa:</strong> pH {"<"} 7.1 ou HCO₃⁻ {"<"} 12 mEq/L</li>
+                <li><strong>Hipercalemia:</strong> Desloca K⁺ para dentro das células</li>
+                <li><strong>Intoxicações:</strong> Antidepressivos tricíclicos, aspirina</li>
+            </>},
+            { type: 'warning', title: '⚠️ ADMINISTRAÇÃO CUIDADOSA', content: (
+                <>
+                    <strong>Fórmula do déficit:</strong>
+                    <br/>• Déficit = 0.3 × peso(kg) × (HCO₃⁻ desejado - atual)
+                    <br/>• Administrar ¼ a ⅓ do déficit lentamente
+                    <br/>• Diluir sempre antes da infusão
+                    <br/>• <strong>Riscos:</strong> Hipernatremia, hipocalemia, alcalose
+                </>
+            )}
         ]
     }
 ];

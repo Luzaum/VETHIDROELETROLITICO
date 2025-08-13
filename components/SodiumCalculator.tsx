@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { loadConsensos, sodiumLimits } from '../lib/rules';
+import { HelpfulTip } from './HelpfulTip';
+import { Comorbidity, PhysiologicalState } from '../lib/types';
 
 interface SodiumCalculatorProps {
   className?: string;
@@ -11,24 +14,50 @@ const SodiumCalculator: React.FC<SodiumCalculatorProps> = ({ className = '' }) =
   const [fluidSodium, setFluidSodium] = useState<number>(154);
   const [desiredRate, setDesiredRate] = useState<number>(0.5);
   const [species, setSpecies] = useState<'dog' | 'cat'>('dog');
+  const [state, setState] = useState<PhysiologicalState>('adulto');
+  const [comorbidities, setComorbidities] = useState<Comorbidity[]>(['nenhuma']);
+  const [evolucao, setEvolucao] = useState<'agudo'|'cronico'>('agudo');
+  const [consensoReady, setConsensoReady] = useState(false);
+
+  useEffect(() => {
+    loadConsensos().then((c) => {
+      (window as any).___consensosCache = c;
+      setConsensoReady(true);
+    }).catch(() => setConsensoReady(false));
+  }, []);
+
+  const limits = useMemo(() => {
+    if (!consensoReady) return null;
+    const c = (window as any).___consensosCache;
+    return sodiumLimits(c, {
+      species: species === 'dog' ? 'cao' : 'gato',
+      pesoKg: weight || 0,
+      estado: state,
+      comorbidades: comorbidities,
+      evolucao
+    } as any);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [consensoReady, species, weight, state, comorbidities, evolucao]);
 
   const calculateSodiumDeficit = () => {
-    if (weight <= 0 || currentSodium <= 0) return 0;
-    const ACT = 0.6 * weight;
+    if (weight <= 0 || currentSodium <= 0 || !limits) return 0;
+    const ACT = (limits as any).limites.tbwCoef * weight;
     return (targetSodium - currentSodium) * ACT;
   };
 
   const calculateInfusionRate = () => {
-    if (weight <= 0 || currentSodium <= 0 || fluidSodium <= currentSodium) return 0;
-    const ACT = 0.6 * weight;
-    const rateLh = (desiredRate * (ACT + 1)) / (fluidSodium - currentSodium);
-    return rateLh * 1000; // Convert to mL/h
+    if (weight <= 0 || currentSodium <= 0 || fluidSodium <= currentSodium || !limits) return 0;
+    const ACT = (limits as any).limites.tbwCoef * weight;
+    const maxHora = (limits as any).limites.maxHora_mEqL;
+    const desired = Math.min(desiredRate, maxHora || desiredRate);
+    const rateLh = (desired * (ACT + 1)) / (fluidSodium - currentSodium);
+    return rateLh * 1000;
   };
 
   const calculateWaterDeficit = () => {
-    if (weight <= 0 || currentSodium <= 0) return 0;
-    const ACT = 0.6 * weight;
-    const normalSodium = species === 'dog' ? 145 : 155;
+    if (weight <= 0 || currentSodium <= 0 || !limits) return 0;
+    const ACT = (limits as any).limites.tbwCoef * weight;
+    const normalSodium = (limits as any).limites.alvoPadrao || (species === 'dog' ? 145 : 155);
     return ((currentSodium / normalSodium) - 1) * ACT;
   };
 
@@ -54,7 +83,7 @@ const SodiumCalculator: React.FC<SodiumCalculatorProps> = ({ className = '' }) =
         👑 Calculadora Prática de Sódio
       </h2>
       <p className="text-gray-600 dark:text-gray-400 mb-6">
-        Cálculo de déficit e correção segura (máx 0.5 mEq/L/h)
+        Parâmetros e limites vindos do seu consensos.json (agudo × crônico, TBW por espécie).
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -72,6 +101,30 @@ const SodiumCalculator: React.FC<SodiumCalculatorProps> = ({ className = '' }) =
               <option value="dog">Cão</option>
               <option value="cat">Gato</option>
             </select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Estado</label>
+              <select value={state} onChange={(e) => setState(e.target.value as PhysiologicalState)} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                <option value="filhote">Filhote</option>
+                <option value="adulto">Adulto</option>
+                <option value="idoso">Idoso</option>
+                <option value="gestante">Gestante</option>
+                <option value="lactante">Lactante</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Comorbidades</label>
+              <select multiple value={comorbidities as any} onChange={(e) => setComorbidities(Array.from(e.target.selectedOptions).map(o => o.value) as Comorbidity[])} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                <option value="nenhuma">Nenhuma</option>
+                <option value="cardiopata">Cardiopata</option>
+                <option value="renopata">Renopata</option>
+                <option value="septico">Séptico</option>
+                <option value="hepatopata">Hepatopata</option>
+                <option value="endocrinopata">Endócrino</option>
+              </select>
+            </div>
           </div>
 
           <div>
@@ -199,11 +252,21 @@ const SodiumCalculator: React.FC<SodiumCalculatorProps> = ({ className = '' }) =
               ⚠️ Lembretes Importantes
             </h3>
             <ul className="text-sm text-yellow-800 dark:text-yellow-200 space-y-1">
-              <li>• Não exceder 0.5 mEq/L/hora de correção</li>
-              <li>• Máximo 12 mEq/L em 24 horas</li>
+              <li>• Respeitar os limites do consenso (agudo vs crônico)</li>
               <li>• Monitorar sódio a cada 2-4h inicialmente</li>
               <li>• Avaliar estado neurológico constantemente</li>
             </ul>
+            {limits && (<div className="text-xs mt-2 text-yellow-700 dark:text-yellow-300">📚 {((limits as any).refsUsadas || []).join(' • ')}</div>)}
+          </div>
+
+          <div className="mt-2">
+            <HelpfulTip
+              tabs={[
+                { id: 'basico', label: 'Básico', markdown: 'TBW = peso × coeficiente por espécie. Defina alvo diário via agudo↔crônico. Risco osmótico se corrigir rápido.' },
+                { id: 'fisio', label: 'Fisiologia', markdown: 'ADH e osmolalidade governam a água livre. Hiponatremia aguda vs crônica exigem velocidades diferentes.' },
+                { id: 'lit', label: 'Literatura', markdown: '📚 [CITAR: DiBartola cap./pág.] — personalize no consensos.json.refs' }
+              ]}
+            />
           </div>
         </div>
       </div>

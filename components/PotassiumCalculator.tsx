@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { HelpfulTip } from './HelpfulTip';
+import { loadConsensos, potassiumGuidance } from '../lib/rules';
+import { Comorbidity, PhysiologicalState } from '../lib/types';
 
 interface PotassiumCalculatorProps {
   className?: string;
@@ -9,16 +12,14 @@ const PotassiumCalculator: React.FC<PotassiumCalculatorProps> = ({ className = '
   const [currentPotassium, setCurrentPotassium] = useState<number>(0);
   const [fluidRate, setFluidRate] = useState<number>(0);
   const [species, setSpecies] = useState<'dog' | 'cat'>('dog');
+  const [state, setState] = useState<PhysiologicalState>('adulto');
+  const [comorbidities, setComorbidities] = useState<Comorbidity[]>(['nenhuma']);
+  const [consensoReady, setConsensoReady] = useState(false);
+  const [consensos, setConsensos] = useState<any | null>(null);
 
-  // Tabela de reposição de potássio baseada no guia fornecido
-  const getPotassiumSupplementation = (serumK: number) => {
-    if (serumK < 2.0) return { kclPerLiter: 80, maxFluidRate: 6 };
-    if (serumK >= 2.1 && serumK <= 2.5) return { kclPerLiter: 60, maxFluidRate: 8 };
-    if (serumK >= 2.6 && serumK <= 3.0) return { kclPerLiter: 40, maxFluidRate: 12 };
-    if (serumK >= 3.1 && serumK <= 3.5) return { kclPerLiter: 28, maxFluidRate: 18 };
-    if (serumK >= 3.6 && serumK <= 5.0) return { kclPerLiter: 20, maxFluidRate: 25 };
-    return { kclPerLiter: 0, maxFluidRate: 0 };
-  };
+  useEffect(() => {
+    loadConsensos().then((c) => { (window as any).___consensosCache = c; setConsensos(c); setConsensoReady(true); }).catch(() => setConsensoReady(false));
+  }, []);
 
   const getPotassiumStatus = () => {
     if (currentPotassium < 3.5) {
@@ -34,26 +35,36 @@ const PotassiumCalculator: React.FC<PotassiumCalculatorProps> = ({ className = '
     return { status: 'Normal', severity: '', color: 'text-green-600' };
   };
 
+  const guidance = useMemo(() => {
+    if (!consensoReady || !consensos) return null;
+    return potassiumGuidance(consensos, {
+      species: species === 'dog' ? 'cao' : 'gato',
+      pesoKg: weight || 0,
+      estado: state,
+      comorbidades: comorbidities,
+      evolucao: 'agudo'
+    } as any, currentPotassium);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [consensoReady, consensos, species, weight, state, comorbidities, currentPotassium]);
+
   const calculateInfusionRate = () => {
-    if (weight <= 0 || currentPotassium <= 0 || fluidRate <= 0) return 0;
-    
-    const { kclPerLiter, maxFluidRate } = getPotassiumSupplementation(currentPotassium);
-    const kclPerHour = (kclPerLiter * fluidRate) / 1000; // Convert mL/h to L/h
+    if (!guidance || weight <= 0 || currentPotassium <= 0 || fluidRate <= 0) return 0;
+    const { limites } = guidance as any;
+    const kclPerHour = (limites.kclPerLiter * fluidRate) / 1000;
     const kclPerKgPerHour = kclPerHour / weight;
-    
     return kclPerKgPerHour;
   };
 
   const getMaxSafeFluidRate = () => {
-    if (weight <= 0 || currentPotassium <= 0) return 0;
-    const { maxFluidRate } = getPotassiumSupplementation(currentPotassium);
-    return maxFluidRate * weight;
+    if (!guidance || weight <= 0 || currentPotassium <= 0) return 0;
+    const { limites } = guidance as any;
+    return (limites.maxFluidRate_mL_kg_h || 0) * weight;
   };
 
   const potassiumStatus = getPotassiumStatus();
   const infusionRate = calculateInfusionRate();
   const maxSafeFluidRate = getMaxSafeFluidRate();
-  const { kclPerLiter } = getPotassiumSupplementation(currentPotassium);
+  const kclPerLiter = guidance ? (guidance as any).limites.kclPerLiter : 0;
 
   return (
     <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 ${className}`}>
@@ -61,7 +72,7 @@ const PotassiumCalculator: React.FC<PotassiumCalculatorProps> = ({ className = '
         ⚡ Calculadora Prática de Potássio
       </h2>
       <p className="text-gray-600 dark:text-gray-400 mb-6">
-        Use a tabela padrão para reposição segura de potássio IV
+        Parâmetros vindos do seu consensos.json. Sempre cite a literatura.
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -92,6 +103,30 @@ const PotassiumCalculator: React.FC<PotassiumCalculatorProps> = ({ className = '
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               placeholder="Ex: 10"
             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Estado</label>
+              <select value={state} onChange={(e) => setState(e.target.value as PhysiologicalState)} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                <option value="filhote">Filhote</option>
+                <option value="adulto">Adulto</option>
+                <option value="idoso">Idoso</option>
+                <option value="gestante">Gestante</option>
+                <option value="lactante">Lactante</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Comorbidades</label>
+              <select multiple value={comorbidities as any} onChange={(e) => setComorbidities(Array.from(e.target.selectedOptions).map(o => o.value) as Comorbidity[])} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                <option value="nenhuma">Nenhuma</option>
+                <option value="cardiopata">Cardiopata</option>
+                <option value="renopata">Renopata</option>
+                <option value="septico">Séptico</option>
+                <option value="hepatopata">Hepatopata</option>
+                <option value="endocrinopata">Endócrino</option>
+              </select>
+            </div>
           </div>
 
           <div>
@@ -147,7 +182,7 @@ const PotassiumCalculator: React.FC<PotassiumCalculatorProps> = ({ className = '
                   KCl a adicionar por litro:
                 </div>
                 <div className="text-lg font-bold text-blue-900 dark:text-blue-100">
-                  {kclPerLiter} mEq/L
+                  {kclPerLiter || 0} mEq/L
                 </div>
               </div>
 
@@ -176,11 +211,14 @@ const PotassiumCalculator: React.FC<PotassiumCalculatorProps> = ({ className = '
               ⚠️ Lembretes Importantes
             </h3>
             <ul className="text-sm text-yellow-800 dark:text-yellow-200 space-y-1">
-              <li>• NUNCA exceder 0.5 mEq/kg/hora de K⁺</li>
+              <li>• Limite ≤ valor do seu consenso (max_mEq_kg_h)</li>
               <li>• Agitar MUITO BEM a bolsa após adicionar KCl</li>
               <li>• Monitorar ECG em casos graves</li>
               <li>• Verificar K⁺ sérico a cada 12-24h</li>
             </ul>
+            {guidance && (
+              <div className="text-xs mt-2 text-yellow-700 dark:text-yellow-300">📚 {((guidance as any).refsUsadas || []).join(' • ')}</div>
+            )}
           </div>
 
           {infusionRate > 0.5 && (
@@ -189,12 +227,22 @@ const PotassiumCalculator: React.FC<PotassiumCalculatorProps> = ({ className = '
                 🚨 ALERTA DE SEGURANÇA
               </h3>
               <p className="text-sm text-red-800 dark:text-red-200">
-                A taxa de infusão calculada ({infusionRate.toFixed(2)} mEq/kg/h) EXCEDE o limite máximo seguro de 0.5 mEq/kg/hora!
+                A taxa de infusão calculada ({infusionRate.toFixed(2)} mEq/kg/h) pode exceder o limite máximo do seu consenso. Valide antes de prosseguir.
                 <br/><br/>
                 <strong>Reduza a taxa de infusão do fluido ou use uma concentração menor de KCl.</strong>
               </p>
             </div>
           )}
+
+          <div className="mt-2">
+            <HelpfulTip
+              tabs={[
+                { id: 'basico', label: 'Básico', markdown: 'NUNCA bolus IV. Concentração da bolsa e taxa por kg são limitadas pelo seu consenso. KCl 19,1% ≈ 2,56 mEq/mL.' },
+                { id: 'fisio', label: 'Fisiologia', markdown: 'Na⁺/K⁺-ATPase; insulina e β-agonista movem K⁺ para dentro; acidose desloca K⁺ para fora; ECG nas alterações.' },
+                { id: 'lit', label: 'Literatura', markdown: '📚 [CITAR: BSAVA/DiBartola cap./pág.] — personalize no consensos.json.refs' }
+              ]}
+            />
+          </div>
         </div>
       </div>
     </div>

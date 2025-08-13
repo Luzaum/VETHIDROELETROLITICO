@@ -6,6 +6,10 @@ export interface ElectrolyteData {
   normalValues: {
     dog: string;
     cat: string;
+    puppy?: string;
+    elderly?: string;
+    pregnant?: string;
+    lactating?: string;
   };
   content: ContentBlock[];
 }
@@ -49,4 +53,27 @@ export interface PatientInfo {
   weight: number;
   state: PhysiologicalState;
   comorbidity: Comorbidity;
+}
+
+export interface DiseaseProtocol {
+  id: string;
+  name: string;
+  electrolytes: string[];
+  content: ContentBlock[];
+}
+
+export interface FluidCompatibility {
+  fluidType: string;
+  compatible: string[];
+  incompatible: string[];
+  warnings: string[];
+}
+
+export interface CalculationResult {
+  isValid: boolean;
+  deficit?: number;
+  dose?: number;
+  infusionRate?: number;
+  warnings: string[];
+  instructions: string[];
 }
