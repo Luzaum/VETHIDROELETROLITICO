@@ -10,7 +10,7 @@ export const HelpPopover: React.FC<HelpPopoverProps> = ({ ariaLabel = 'Ajuda', c
 	return (
 		<Popover.Root>
 			<Popover.Trigger asChild>
-				<button type="button" aria-label={ariaLabel} className="help-button">❓</button>
+				<button type="button" aria-label={ariaLabel} className="help-button">?</button>
 			</Popover.Trigger>
 			<Popover.Portal>
 				<Popover.Content className="card-surface shadow-amberLg w-[380px] p-3 outline-none" sideOffset={8}>

@@ -6,6 +6,6 @@ Dose: `Vd × kg × (HCO₃ alvo − atual)`; administrar 1/3–1/2 e reavaliar. 
 
 Riscos: geração de CO₂, alcalose iatrogênica, hipernatremia.
 
-> [CITAR: DiBartola cap./pág.]
+Referências: personalize em `consensos.json.refs`.
 
 

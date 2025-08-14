@@ -160,29 +160,53 @@ export const CalculatorPage: React.FC = () => {
         </div>
 
         <div className="lg:col-span-2 bg-white dark:bg-brand-dark-surface p-6 rounded-lg shadow-lg">
-            <div className="flex justify-between items-center border-b pb-2 mb-4 dark:border-gray-600">
-                <h2 className="text-2xl font-bold">2. Cálculo de Reposição</h2>
-                 <select value={electrolyte} onChange={e => setElectrolyte(e.target.value)} className={inputClasses + " max-w-xs"}>
-                    <option value="potassium">Potássio (K⁺)</option>
-                    <option value="sodium">Sódio (Na⁺)</option>
-                    <option value="calcium">Cálcio (Ca²⁺)</option>
-                    <option value="magnesium">Magnésio (Mg²⁺)</option>
-                    <option value="phosphorus">Fósforo (P)</option>
-                    <option value="bicarbonate">Bicarbonato (HCO₃⁻)</option>
-                    <option value="glucose">Glicemia</option>
-                </select>
+            <div className="border-b pb-2 mb-4 dark:border-gray-600">
+                <h2 className="text-2xl font-bold mb-3">2. Cálculo de Reposição</h2>
+                <div className="flex flex-wrap gap-2">
+                    {[
+                        { id: 'potassium', label: 'Potássio (K⁺)' },
+                        { id: 'sodium', label: 'Sódio (Na⁺)' },
+                        { id: 'calcium', label: 'Cálcio (Ca²⁺)' },
+                        { id: 'magnesium', label: 'Magnésio (Mg²⁺)' },
+                        { id: 'phosphorus', label: 'Fósforo (P)' },
+                        { id: 'bicarbonate', label: 'Bicarbonato (HCO₃⁻)' },
+                        { id: 'glucose', label: 'Glicemia' },
+                    ].map(btn => (
+                        <button
+                          key={btn.id}
+                          type="button"
+                          onClick={() => setElectrolyte(btn.id)}
+                          className={`px-3 py-1.5 rounded-full border text-sm transition-colors ${electrolyte === btn.id ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-blue-700 border-blue-300 hover:bg-blue-50'}`}
+                        >
+                          {btn.label}
+                        </button>
+                    ))}
+                </div>
             </div>
 
             {electrolyte === 'calcium' && (
-                <CalciumCalculator />
+                <CalciumCalculator patient={{
+                    species: patientInfo.species === Species.Dog ? 'dog' : 'cat',
+                    weight: patientInfo.weight
+                }} />
             )}
 
             {electrolyte === 'potassium' && (
-                <PotassiumCalculator className="" />
+                <PotassiumCalculator className="" patient={{
+                    species: patientInfo.species === Species.Dog ? 'dog' : 'cat',
+                    weight: patientInfo.weight,
+                    state: patientInfo.state as any,
+                    comorbidities: [patientInfo.comorbidity as any]
+                }} />
             )}
 
             {electrolyte === 'sodium' && (
-                <SodiumCalculator />
+                <SodiumCalculator patient={{
+                    species: patientInfo.species === Species.Dog ? 'dog' : 'cat',
+                    weight: patientInfo.weight,
+                    state: patientInfo.state as any,
+                    comorbidities: [patientInfo.comorbidity as any]
+                }} />
             )}
 
             {electrolyte === 'magnesium' && (

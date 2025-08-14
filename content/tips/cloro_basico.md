@@ -4,6 +4,6 @@ Alcalose hipoclorêmica: vômito gástrico/obstrução pilórica, diuréticos, p
 
 Terapia responsiva a cloreto: preferir NaCl 0,9%; evitar hipercloremia em sépticos/renopatas conforme engine.
 
-> [CITAR: DiBartola cap./pág.]
+Referências: ajuste em `consensos.json.refs`.
 
 

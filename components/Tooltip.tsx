@@ -27,12 +27,10 @@ export const Tooltip: React.FC<TooltipProps> = ({ content, children }) => {
   );
 };
 
-export const InfoIcon: React.FC<{ content: React.ReactNode }> = ({ content }) => {
+export const InfoIcon: React.FC<{ content: React.ReactNode; ariaLabel?: string }> = ({ content, ariaLabel = 'Ajuda' }) => {
   return (
     <Tooltip content={content}>
-      <span className="ml-1 text-brand-orange-dark cursor-pointer">
-        <i className="fas fa-question-circle"></i>
-      </span>
+      <button type="button" aria-label={ariaLabel} className="help-button">?</button>
     </Tooltip>
   );
 };

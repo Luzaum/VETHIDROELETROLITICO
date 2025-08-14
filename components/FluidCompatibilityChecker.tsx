@@ -27,7 +27,8 @@ export const FluidCompatibilityChecker: React.FC = () => {
     return {
       compatible: isCompatible,
       incompatible: isIncompatible,
-      warnings: additive.warnings
+      warnings: additive.warnings,
+      additiveName: additive.name
     };
   };
 
@@ -93,7 +94,7 @@ export const FluidCompatibilityChecker: React.FC = () => {
                   <div>
                     <h5 className="font-bold text-green-800 dark:text-green-200">✅ Compatível</h5>
                     <p className="text-sm text-green-700 dark:text-green-300">
-                      {selectedAdditive} é compatível com {selectedFluid}
+                      {result.additiveName} é compatível com {selectedFluid}
                     </p>
                   </div>
                 </>
@@ -107,7 +108,7 @@ export const FluidCompatibilityChecker: React.FC = () => {
                   <div>
                     <h5 className="font-bold text-red-800 dark:text-red-200">❌ INCOMPATÍVEL</h5>
                     <p className="text-sm text-red-700 dark:text-red-300">
-                      <strong>NÃO misturar!</strong> {selectedAdditive} é incompatível com {selectedFluid}
+                      <strong>NÃO misturar!</strong> {result.additiveName} é incompatível com {selectedFluid}
                     </p>
                   </div>
                 </>

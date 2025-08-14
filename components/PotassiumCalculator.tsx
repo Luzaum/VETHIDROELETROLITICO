@@ -7,11 +7,19 @@ import { POTASSIUM_REPLACEMENT_TABLE_CONTENT } from '../data/content';
 import { loadConsensos, potassiumGuidance } from '../lib/rules';
 import { Comorbidity, PhysiologicalState } from '../lib/types';
 
-interface PotassiumCalculatorProps {
-  className?: string;
+interface PatientBasics {
+  species: 'dog' | 'cat';
+  weight: number;
+  state: PhysiologicalState;
+  comorbidities: Comorbidity[];
 }
 
-const PotassiumCalculator: React.FC<PotassiumCalculatorProps> = ({ className = '' }) => {
+interface PotassiumCalculatorProps {
+  className?: string;
+  patient?: PatientBasics;
+}
+
+const PotassiumCalculator: React.FC<PotassiumCalculatorProps> = ({ className = '', patient }) => {
   const [weight, setWeight] = useState<number>(0);
   const [currentPotassium, setCurrentPotassium] = useState<number>(0);
   const [fluidRate, setFluidRate] = useState<number>(0);
@@ -28,6 +36,15 @@ const PotassiumCalculator: React.FC<PotassiumCalculatorProps> = ({ className = '
   useEffect(() => {
     loadConsensos().then((c) => { (window as any).___consensosCache = c; setConsensos(c); setConsensoReady(true); }).catch(() => setConsensoReady(false));
   }, []);
+
+  // Sincroniza dados do paciente (seção 1) sem repetir inputs
+  useEffect(() => {
+    if (!patient) return;
+    if (typeof patient.weight === 'number') setWeight(patient.weight || 0);
+    if (patient.species) setSpecies(patient.species);
+    if (patient.state) setState(patient.state);
+    if (patient.comorbidities) setComorbidities(patient.comorbidities);
+  }, [patient]);
 
   const getPotassiumStatus = () => {
     if (currentPotassium < 3.5) {
@@ -84,57 +101,11 @@ const PotassiumCalculator: React.FC<PotassiumCalculatorProps> = ({ className = '
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Input Section */}
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Espécie
-            </label>
-            <select
-              value={species}
-              onChange={(e) => setSpecies(e.target.value as 'dog' | 'cat')}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-            >
-              <option value="dog">Cão</option>
-              <option value="cat">Gato</option>
-            </select>
-          </div>
+          {/* Espécie removida aqui: já definida em "Dados do Paciente" */}
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Peso (kg)
-              <span className="ml-1 align-middle"><InfoIcon content={TIP_K_HYPO_PATHO} /></span>
-            </label>
-            <input
-              type="number"
-              value={weight}
-              onChange={(e) => setWeight(Number(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              placeholder="Ex: 10"
-            />
-          </div>
+          {/* Peso removido aqui: já definido em "Dados do Paciente" */}
 
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Estado</label>
-              <select value={state} onChange={(e) => setState(e.target.value as PhysiologicalState)} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                <option value="filhote">Filhote</option>
-                <option value="adulto">Adulto</option>
-                <option value="idoso">Idoso</option>
-                <option value="gestante">Gestante</option>
-                <option value="lactante">Lactante</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Comorbidades</label>
-              <select multiple value={comorbidities as any} onChange={(e) => setComorbidities(Array.from(e.target.selectedOptions).map(o => o.value) as Comorbidity[])} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                <option value="nenhuma">Nenhuma</option>
-                <option value="cardiopata">Cardiopata</option>
-                <option value="renopata">Renopata</option>
-                <option value="septico">Séptico</option>
-                <option value="hepatopata">Hepatopata</option>
-                <option value="endocrinopata">Endócrino</option>
-              </select>
-            </div>
-          </div>
+          {/* Estado fisiológico e comorbidades removidos: já definidos em "Dados do Paciente" */}
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -272,13 +243,19 @@ const PotassiumCalculator: React.FC<PotassiumCalculatorProps> = ({ className = '
           )}
 
           <div className="mt-2">
-            <HelpfulTip
-              tabs={[
-                { id: 'basico', label: 'Básico', markdown: 'NUNCA bolus IV. Concentração da bolsa e taxa por kg são limitadas pelo seu consenso. KCl 19,1% ≈ 2,56 mEq/mL.' },
-                { id: 'fisio', label: 'Fisiologia', markdown: 'Na⁺/K⁺-ATPase; insulina e β-agonista movem K⁺ para dentro; acidose desloca K⁺ para fora; ECG nas alterações.' },
-                { id: 'lit', label: 'Literatura', markdown: '📚 [CITAR: BSAVA/DiBartola cap./pág.] — personalize no consensos.json.refs' }
-              ]}
-            />
+            {(() => {
+              const refs = guidance ? ((guidance as any).refsUsadas || []) : [];
+              const literature = refs.length > 0 ? `📚 ${refs.join(' • ')}` : '📚 Ajuste suas referências no consensos.json para ver as fontes aqui.';
+              return (
+                <HelpfulTip
+                  tabs={[
+                    { id: 'basico', label: 'Básico', markdown: 'NUNCA bolus IV. Concentração da bolsa e taxa por kg são limitadas pelo seu consenso. KCl 19,1% ≈ 2,56 mEq/mL.' },
+                    { id: 'fisio', label: 'Fisiologia', markdown: 'Na⁺/K⁺-ATPase; insulina e β-agonista movem K⁺ para dentro; acidose desloca K⁺ para fora; ECG nas alterações.' },
+                    { id: 'lit', label: 'Literatura', markdown: literature }
+                  ]}
+                />
+              );
+            })()}
           </div>
         </div>
       </div>

@@ -8,8 +8,6 @@
 
 **Reposição**: NUNCA bolus IV. KCl 19,1% ≈ 2,56 mEq/mL. Limite ≤ max_mEq_kg_h do seu consenso. Concentração máxima periférica/central conforme consenso.
 
-Tabela de severidade deve vir do seu `consensos.json` com citação.
-
-> [CITAR: BSAVA cap./pág.]
+Tabela de severidade deve vir do seu `consensos.json` com citação. Ajuste suas referências em `consensos.json.refs` para exibir as fontes automaticamente.
 
 

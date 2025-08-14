@@ -1,10 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+
+interface PatientBasics {
+  species: 'dog' | 'cat';
+  weight: number;
+}
 
 interface CalciumCalculatorProps {
   className?: string;
+  patient?: PatientBasics;
 }
 
-const CalciumCalculator: React.FC<CalciumCalculatorProps> = ({ className = '' }) => {
+const CalciumCalculator: React.FC<CalciumCalculatorProps> = ({ className = '', patient }) => {
   const [weight, setWeight] = useState<number>(0);
   const [totalCalcium, setTotalCalcium] = useState<number>(0);
   const [ionizedCalcium, setIonizedCalcium] = useState<number>(0);
@@ -12,6 +18,12 @@ const CalciumCalculator: React.FC<CalciumCalculatorProps> = ({ className = '' })
   const [phosphorus, setPhosphorus] = useState<number>(0);
   const [species, setSpecies] = useState<'dog' | 'cat'>('dog');
   const [hasIonizedCalcium, setHasIonizedCalcium] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!patient) return;
+    if (typeof patient.weight === 'number') setWeight(patient.weight || 0);
+    if (patient.species) setSpecies(patient.species);
+  }, [patient]);
 
   // Valores normais de referência
   const getNormalValues = () => {
@@ -98,32 +110,7 @@ const CalciumCalculator: React.FC<CalciumCalculatorProps> = ({ className = '' })
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Input Section */}
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Espécie
-            </label>
-            <select
-              value={species}
-              onChange={(e) => setSpecies(e.target.value as 'dog' | 'cat')}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-            >
-              <option value="dog">Cão</option>
-              <option value="cat">Gato</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Peso (kg)
-            </label>
-            <input
-              type="number"
-              value={weight}
-              onChange={(e) => setWeight(Number(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              placeholder="Ex: 10"
-            />
-          </div>
+          {/* Espécie e peso removidos: já definidos em "Dados do Paciente" */}
 
           <div>
             <label className="flex items-center space-x-2">

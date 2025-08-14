@@ -6,6 +6,6 @@ Reposição: Gluconato de Cálcio 10% (≈9,3 mg Ca elementar/mL) lento com ECG;
 
 Hipercalcemia: malignidade, hiperPTH, Addison, DRC, vit. D; atenção ao produto Ca×P.
 
-> [CITAR: DiBartola/Nelson cap./pág.]
+Referências: ajuste em `consensos.json.refs`.
 
 

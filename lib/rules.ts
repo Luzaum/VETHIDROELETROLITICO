@@ -51,9 +51,12 @@ export function getRefs(consensos: Consensos, keys: string[]): string[] {
   for (const k of keys) {
     const r = consensos.refs[k];
     if (!r) continue;
+    // Oculta placeholders do tipo "[CITAR: ...]" que poluem a UI
+    if (r.fonte && r.fonte.toUpperCase().includes('[CITAR:')) continue;
     const cap = r.capitulo ? ` cap. ${r.capitulo}` : '';
     const pg = r.pagina ? ` p. ${r.pagina}` : '';
-    out.push(`${r.fonte}${cap}${pg}`.trim());
+    const composed = `${r.fonte || ''}${cap}${pg}`.trim();
+    if (composed) out.push(composed);
   }
   return Array.from(new Set(out));
 }

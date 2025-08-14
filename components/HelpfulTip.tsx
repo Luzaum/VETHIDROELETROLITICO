@@ -15,7 +15,7 @@ export const HelpfulTip: React.FC<{ tabs: HelpfulTipTab[]; ariaLabel?: string }>
   return (
     <Popover.Root>
       <Popover.Trigger asChild>
-        <button aria-label={ariaLabel} className="help-button" type="button">❓</button>
+        <button aria-label={ariaLabel} className="help-button" type="button">?</button>
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Content className="card-surface shadow-amberLg w-[360px] p-3 outline-none" sideOffset={8}>

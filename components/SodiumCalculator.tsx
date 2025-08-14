@@ -5,11 +5,19 @@ import { Comorbidity, PhysiologicalState } from '../lib/types';
 import { InfoIcon } from './Tooltip';
 import { TIP_NA_CORRECTION_RATE, TIP_OSM_FORMULA } from '../data/tooltips';
 
-interface SodiumCalculatorProps {
-  className?: string;
+interface PatientBasics {
+  species: 'dog' | 'cat';
+  weight: number;
+  state: PhysiologicalState;
+  comorbidities: Comorbidity[];
 }
 
-const SodiumCalculator: React.FC<SodiumCalculatorProps> = ({ className = '' }) => {
+interface SodiumCalculatorProps {
+  className?: string;
+  patient?: PatientBasics;
+}
+
+const SodiumCalculator: React.FC<SodiumCalculatorProps> = ({ className = '', patient }) => {
   const [weight, setWeight] = useState<number>(0);
   const [currentSodium, setCurrentSodium] = useState<number>(0);
   const [targetSodium, setTargetSodium] = useState<number>(145);
@@ -27,6 +35,15 @@ const SodiumCalculator: React.FC<SodiumCalculatorProps> = ({ className = '' }) =
       setConsensoReady(true);
     }).catch(() => setConsensoReady(false));
   }, []);
+
+  // Sincroniza dados do paciente (seção 1)
+  useEffect(() => {
+    if (!patient) return;
+    if (typeof patient.weight === 'number') setWeight(patient.weight || 0);
+    if (patient.species) setSpecies(patient.species);
+    if (patient.state) setState(patient.state);
+    if (patient.comorbidities) setComorbidities(patient.comorbidities);
+  }, [patient]);
 
   const limits = useMemo(() => {
     if (!consensoReady) return null;
@@ -91,56 +108,11 @@ const SodiumCalculator: React.FC<SodiumCalculatorProps> = ({ className = '' }) =
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Input Section */}
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Espécie
-            </label>
-            <select
-              value={species}
-              onChange={(e) => setSpecies(e.target.value as 'dog' | 'cat')}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-            >
-              <option value="dog">Cão</option>
-              <option value="cat">Gato</option>
-            </select>
-          </div>
+          {/* Espécie removida aqui: já definida em "Dados do Paciente" */}
 
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Estado</label>
-              <select value={state} onChange={(e) => setState(e.target.value as PhysiologicalState)} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                <option value="filhote">Filhote</option>
-                <option value="adulto">Adulto</option>
-                <option value="idoso">Idoso</option>
-                <option value="gestante">Gestante</option>
-                <option value="lactante">Lactante</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Comorbidades</label>
-              <select multiple value={comorbidities as any} onChange={(e) => setComorbidities(Array.from(e.target.selectedOptions).map(o => o.value) as Comorbidity[])} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                <option value="nenhuma">Nenhuma</option>
-                <option value="cardiopata">Cardiopata</option>
-                <option value="renopata">Renopata</option>
-                <option value="septico">Séptico</option>
-                <option value="hepatopata">Hepatopata</option>
-                <option value="endocrinopata">Endócrino</option>
-              </select>
-            </div>
-          </div>
+          {/* Estado fisiológico e comorbidades removidos: já definidos em "Dados do Paciente" */}
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Peso (kg)
-            </label>
-            <input
-              type="number"
-              value={weight}
-              onChange={(e) => setWeight(Number(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              placeholder="Ex: 10"
-            />
-          </div>
+          {/* Peso removido: já definido em "Dados do Paciente" */}
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -261,17 +233,25 @@ const SodiumCalculator: React.FC<SodiumCalculatorProps> = ({ className = '' }) =
               <li>• Monitorar sódio a cada 2-4h inicialmente</li>
               <li>• Avaliar estado neurológico constantemente</li>
             </ul>
-            {limits && (<div className="text-xs mt-2 text-yellow-700 dark:text-yellow-300">📚 {((limits as any).refsUsadas || []).join(' • ')}</div>)}
+            {limits && ((limits as any).refsUsadas || []).length > 0 && (
+              <div className="text-xs mt-2 text-yellow-700 dark:text-yellow-300">📚 {((limits as any).refsUsadas || []).join(' • ')}</div>
+            )}
           </div>
 
           <div className="mt-2">
-            <HelpfulTip
-              tabs={[
-                { id: 'basico', label: 'Básico', markdown: 'TBW = peso × coeficiente por espécie. Defina alvo diário via agudo↔crônico. Risco osmótico se corrigir rápido.' },
-                { id: 'fisio', label: 'Fisiologia', markdown: 'ADH e osmolalidade governam a água livre. Hiponatremia aguda vs crônica exigem velocidades diferentes.' },
-                { id: 'lit', label: 'Literatura', markdown: '📚 [CITAR: DiBartola cap./pág.] — personalize no consensos.json.refs' }
-              ]}
-            />
+            {(() => {
+              const refs = limits ? ((limits as any).refsUsadas || []) : [];
+              const literature = refs.length > 0 ? `📚 ${refs.join(' • ')}` : '📚 Ajuste suas referências no consensos.json para exibir aqui.';
+              return (
+                <HelpfulTip
+                  tabs={[
+                    { id: 'basico', label: 'Básico', markdown: 'TBW = peso × coeficiente por espécie. Defina alvo diário via agudo↔crônico. Risco osmótico se corrigir rápido.' },
+                    { id: 'fisio', label: 'Fisiologia', markdown: 'ADH e osmolalidade governam a água livre. Hiponatremia aguda vs crônica exigem velocidades diferentes.' },
+                    { id: 'lit', label: 'Literatura', markdown: literature }
+                  ]}
+                />
+              );
+            })()}
           </div>
         </div>
       </div>
