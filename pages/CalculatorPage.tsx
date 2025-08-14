@@ -110,6 +110,77 @@ export const CalculatorPage: React.FC = () => {
   
   const inputClasses = "w-full p-2 border border-gray-300 rounded bg-white dark:bg-brand-dark-surface dark:border-gray-600 focus:ring-2 focus:ring-brand-orange-dark focus:border-transparent outline-none transition";
 
+  // ------ Estados auxiliares para abas extra ------
+  // Magnésio
+  const [mgMode, setMgMode] = useState<'bolus'|'cri'>('bolus');
+  const [mgDoseStr, setMgDoseStr] = useState<string>('0.2'); // mEq/kg
+  const [mgTimeStr, setMgTimeStr] = useState<string>('0.25'); // horas
+  const [mgContainer, setMgContainer] = useState<string>('seringa20');
+  const [mgDiluent, setMgDiluent] = useState<string>('NaCl 0.9%');
+
+  const mgContainerVolume = (id: string) => {
+    if (id.startsWith('seringa')) return Number(id.replace('seringa','')) || 20;
+    if (id.startsWith('bolsa')) return Number(id.replace('bolsa','')) || 500;
+    return 0;
+  };
+
+  const mgCalc = useMemo(() => {
+    const w = patientInfo.weight || 0;
+    const dose = Number(String(mgDoseStr).replace(',','.')) || 0;
+    const time = Number(String(mgTimeStr).replace(',','.')) || 0;
+    if (w <= 0 || dose <= 0 || time <= 0) return null;
+    const total_mEq = dose * w; // para bolus e também por 24h para CRI (dose já é mEq/kg)
+    const mgPerMl = 4; // mEq/mL (MgSO4 50%)
+    const drugMl = total_mEq / mgPerMl;
+    const volumeMl = mgContainerVolume(mgContainer) || (mgMode === 'cri' ? 500 : 20);
+    const diluentMl = Math.max(0, volumeMl - drugMl);
+    const infTime = mgMode === 'cri' ? (Number(String(mgTimeStr).replace(',','.')) || 24) : time; 
+    const rateMlH = infTime > 0 ? volumeMl / infTime : 0;
+    return { total_mEq, drugMl, volumeMl, diluentMl, rateMlH };
+  }, [patientInfo.weight, mgDoseStr, mgTimeStr, mgMode, mgContainer]);
+
+  // Fósforo
+  const [pSalt, setPSalt] = useState<'kphos'|'naphos'>('kphos');
+  const [pDoseStr, setPDoseStr] = useState<string>('0.02'); // mmol/kg/h
+  const [pTimeStr, setPTimeStr] = useState<string>('4'); // horas
+  const [pContainer, setPContainer] = useState<string>('bolsa500');
+  const [pDiluent, setPDiluent] = useState<string>('NaCl 0.9%');
+
+  const pContainerVolume = mgContainerVolume;
+
+  const pCalc = useMemo(() => {
+    const w = patientInfo.weight || 0;
+    const dose = Number(String(pDoseStr).replace(',','.')) || 0;
+    const time = Number(String(pTimeStr).replace(',','.')) || 0;
+    if (w <= 0 || dose <= 0 || time <= 0) return null;
+    const mmolP = dose * w * time;
+    const mmolPerMl = 3; // tanto KPhos quanto NaPhos usualmente 3 mmol P/mL
+    const drugMl = mmolP / mmolPerMl;
+    const volumeMl = pContainerVolume(pContainer) || 500;
+    const diluentMl = Math.max(0, volumeMl - drugMl);
+    const rateMlH = volumeMl / time;
+    const kAdded_mEq = pSalt === 'kphos' ? drugMl * 4.4 : 0;
+    const k_mEq_kg_h = (kAdded_mEq / time) / (w || 1);
+    const kSafe = k_mEq_kg_h <= 0.5; // teto clássico; pode ser ajustado pelo consenso
+    return { mmolP, drugMl, volumeMl, diluentMl, rateMlH, kAdded_mEq, k_mEq_kg_h, kSafe };
+  }, [patientInfo.weight, pDoseStr, pTimeStr, pSalt, pContainer]);
+
+  // Bicarbonato
+  const [hco3CurrentStr, setHco3CurrentStr] = useState<string>('8');
+  const [hco3TargetStr, setHco3TargetStr] = useState<string>('15');
+  const [hco3Vd, setHco3Vd] = useState<number>(0.3);
+
+  const hco3Calc = useMemo(() => {
+    const w = patientInfo.weight || 0;
+    const cur = Number(String(hco3CurrentStr).replace(',','.')) || 0;
+    const tgt = Number(String(hco3TargetStr).replace(',','.')) || 0;
+    if (w <= 0 || cur <= 0 || tgt <= 0 || tgt <= cur) return null;
+    const deficit_mEq = hco3Vd * w * (tgt - cur);
+    const volumeMl = deficit_mEq; // 8.4% = 1 mEq/mL
+    const initialMl = deficit_mEq * 0.5;
+    return { deficit_mEq, volumeMl, initialMl };
+  }, [patientInfo.weight, hco3CurrentStr, hco3TargetStr, hco3Vd]);
+
   return (
     <div className="container mx-auto mt-8 px-4 pb-12">
       <div className="text-center mb-8">
@@ -213,24 +284,55 @@ export const CalculatorPage: React.FC = () => {
                 <div className="space-y-4">
                     <div className="p-4 bg-blue-50 dark:bg-blue-900/40 rounded-lg">
                         <h4 className="font-bold text-blue-800 dark:text-blue-200 mb-2">Calculadora de Magnésio (Mg²⁺)</h4>
-                        <p className="text-sm">Valores de referência: Cães 1.5-2.1 mEq/L, Gatos 1.7-2.2 mEq/L</p>
-                        <p className="text-sm mt-1"><strong>Lembrete:</strong> Hipomagnesemia frequentemente causa hipocalemia resistente</p>
+                        <p className="text-sm">Carregamento: 0,15–0,3 mEq/kg IV lento (10–20 min). Manutenção: 0,75–1,0 mEq/kg/dia.</p>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                            <label className="block font-medium mb-1">Mg²⁺ atual (mEq/L)</label>
-                            <input type="number" step="0.1" className={inputClasses} placeholder="Ex: 1.2" />
+                            <label className="block font-medium mb-1">Modo</label>
+                            <select className={inputClasses} value={mgMode} onChange={(e)=> setMgMode(e.target.value as any)}>
+                                <option value="bolus">Bolus</option>
+                                <option value="cri">CRI 24h</option>
+                            </select>
                         </div>
                         <div>
-                            <label className="block font-medium mb-1">Mg²⁺ desejado (mEq/L)</label>
-                            <input type="number" step="0.1" className={inputClasses} placeholder="Ex: 1.8" />
+                            <label className="block font-medium mb-1">Dose (mEq/kg)</label>
+                            <input inputMode="decimal" pattern="[0-9]*[.,]?[0-9]*" value={mgDoseStr} onChange={(e)=> setMgDoseStr(e.target.value)} className={inputClasses} placeholder="Ex: 0,2" />
+                        </div>
+                        <div>
+                            <label className="block font-medium mb-1">Tempo (h)</label>
+                            <input inputMode="decimal" pattern="[0-9]*[.,]?[0-9]*" value={mgTimeStr} onChange={(e)=> setMgTimeStr(e.target.value)} className={inputClasses} placeholder="Ex: 0,25" />
                         </div>
                     </div>
-                    <div className="p-4 bg-yellow-50 dark:bg-yellow-900/40 rounded-lg">
-                        <h5 className="font-bold text-yellow-800 dark:text-yellow-200">Tratamento:</h5>
-                        <p className="text-sm mt-1"><strong>Sulfato de Magnésio IV:</strong> 0.1-0.3 mEq/kg/h (1.6-2.5 mg/kg/h)</p>
-                        <p className="text-sm"><strong>Via Oral:</strong> Óxido de magnésio 10-20 mg/kg/dia</p>
-                        <p className="text-sm text-red-600 dark:text-red-400 mt-2"><strong>Monitorar:</strong> Reflexos patelares e creatinina</p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label className="block font-medium mb-1">Recipiente</label>
+                            <select className={inputClasses} value={mgContainer} onChange={(e)=> setMgContainer(e.target.value)}>
+                                <option value="seringa10">Seringa 10 mL</option>
+                                <option value="seringa20">Seringa 20 mL</option>
+                                <option value="seringa60">Seringa 60 mL</option>
+                                <option value="bolsa250">Bolsa 250 mL</option>
+                                <option value="bolsa500">Bolsa 500 mL</option>
+                                <option value="bolsa1000">Bolsa 1000 mL</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block font-medium mb-1">Diluente</label>
+                            <select className={inputClasses} value={mgDiluent} onChange={(e)=> setMgDiluent(e.target.value)}>
+                                <option>NaCl 0.9%</option>
+                                <option>Dextrose 5%</option>
+                            </select>
+                        </div>
+                        <div className="flex items-end">
+                            <div className="text-sm text-gray-600 dark:text-gray-300">MgSO₄ 50% ≈ 4 mEq/mL</div>
+                        </div>
+                    </div>
+                    {mgCalc && (
+                      <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                        <div className="text-sm">Volume da droga: <strong>{mgCalc.drugMl.toFixed(2)} mL</strong>; Completar com diluente até <strong>{mgCalc.volumeMl} mL</strong>. Taxa sugerida: <strong>{mgCalc.rateMlH.toFixed(1)} mL/h</strong>.</div>
+                      </div>
+                    )}
+                    <div className="p-4 bg-yellow-50 dark:bg-yellow-900/40 rounded-lg text-sm">
+                        Compatibilidade: MgSO₄ é incompatível com bicarbonato; atenção com soluções com cálcio — preferir linha separada/flush. Taxa de bolus 10–20 min; CRI dividir em 24 h. Referências: DiBartola; BSAVA.
                     </div>
                 </div>
             )}
@@ -239,29 +341,56 @@ export const CalculatorPage: React.FC = () => {
                 <div className="space-y-4">
                     <div className="p-4 bg-purple-50 dark:bg-purple-900/40 rounded-lg">
                         <h4 className="font-bold text-purple-800 dark:text-purple-200 mb-2">Calculadora de Fósforo (P)</h4>
-                        <p className="text-sm">Valores de referência: Cães 2.7-5.4 mg/dL, Gatos 2.6-5.5 mg/dL</p>
-                        <p className="text-sm mt-1"><strong>Filhotes:</strong> Valores fisiologicamente mais altos</p>
+                        <p className="text-sm">Hipofosfatemia moderada/grave: 0,01–0,03 mmol/kg/h. Diluir em SF 0,9% ou D5W.</p>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                            <label className="block font-medium mb-1">P atual (mg/dL)</label>
-                            <input type="number" step="0.1" className={inputClasses} placeholder="Ex: 1.8" />
-                        </div>
-                        <div>
-                            <label className="block font-medium mb-1">Gravidade</label>
-                            <select className={inputClasses}>
-                                <option value="mild">Leve (2.0-2.5 mg/dL)</option>
-                                <option value="moderate">Moderada (1.5-2.0 mg/dL)</option>
-                                <option value="severe">Severa (&lt; 1.5 mg/dL)</option>
+                            <label className="block font-medium mb-1">Sal</label>
+                            <select className={inputClasses} value={pSalt} onChange={(e)=> setPSalt(e.target.value as any)}>
+                                <option value="kphos">K-fosfato (3 mmol P/mL; 4,4 mEq K/mL)</option>
+                                <option value="naphos">Na-fosfato (3 mmol P/mL; 4 mEq Na/mL)</option>
                             </select>
                         </div>
+                        <div>
+                            <label className="block font-medium mb-1">Dose (mmol/kg/h)</label>
+                            <input inputMode="decimal" pattern="[0-9]*[.,]?[0-9]*" value={pDoseStr} onChange={(e)=> setPDoseStr(e.target.value)} className={inputClasses} placeholder="Ex: 0,02" />
+                        </div>
+                        <div>
+                            <label className="block font-medium mb-1">Tempo (h)</label>
+                            <input inputMode="decimal" pattern="[0-9]*[.,]?[0-9]*" value={pTimeStr} onChange={(e)=> setPTimeStr(e.target.value)} className={inputClasses} placeholder="Ex: 4" />
+                        </div>
                     </div>
-                    <div className="p-4 bg-red-50 dark:bg-red-900/40 rounded-lg">
-                        <h5 className="font-bold text-red-800 dark:text-red-200">⚠️ K-Phos (Fosfato de Potássio):</h5>
-                        <p className="text-sm mt-1"><strong>Concentração:</strong> 3 mmol P + 4.4 mEq K por mL</p>
-                        <p className="text-sm"><strong>INCOMPATÍVEL</strong> com Ringer Lactato (contém cálcio)</p>
-                        <p className="text-sm"><strong>Usar:</strong> NaCl 0.9% ou Dextrose 5%</p>
-                        <p className="text-sm text-red-600 dark:text-red-400 mt-2"><strong>Taxa máxima:</strong> 0.12 mmol/kg/h</p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label className="block font-medium mb-1">Recipiente</label>
+                            <select className={inputClasses} value={pContainer} onChange={(e)=> setPContainer(e.target.value)}>
+                                <option value="seringa10">Seringa 10 mL</option>
+                                <option value="seringa20">Seringa 20 mL</option>
+                                <option value="seringa60">Seringa 60 mL</option>
+                                <option value="bolsa250">Bolsa 250 mL</option>
+                                <option value="bolsa500">Bolsa 500 mL</option>
+                                <option value="bolsa1000">Bolsa 1000 mL</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block font-medium mb-1">Diluente</label>
+                            <select className={inputClasses} value={pDiluent} onChange={(e)=> setPDiluent(e.target.value)}>
+                                <option>NaCl 0.9%</option>
+                                <option>Dextrose 5%</option>
+                            </select>
+                        </div>
+                        <div className="flex items-end">
+                            <div className="text-sm text-gray-600 dark:text-gray-300">Evitar LRS (contém Ca²⁺) — risco de precipitado.</div>
+                        </div>
+                    </div>
+                    {pCalc && (
+                      <div className={`p-4 rounded-lg ${pCalc.kSafe ? 'bg-purple-50 dark:bg-purple-900/20' : 'bg-red-50 dark:bg-red-900/20'}`}>
+                        <div className="text-sm">Volume do sal: <strong>{pCalc.drugMl.toFixed(2)} mL</strong>; completar com diluente até <strong>{pCalc.volumeMl} mL</strong>. Taxa: <strong>{pCalc.rateMlH.toFixed(1)} mL/h</strong>.</div>
+                        <div className="text-sm mt-1">K⁺ adicionado: <strong>{pCalc.kAdded_mEq.toFixed(2)} mEq</strong> → {pCalc.k_mEq_kg_h.toFixed(3)} mEq/kg/h {pCalc.kSafe ? '✅ dentro do limite (≤ 0,5)' : '🚨 acima do limite (0,5)'}.</div>
+                      </div>
+                    )}
+                    <div className="p-4 bg-red-50 dark:bg-red-900/40 rounded-lg text-sm">
+                        K-Phos: 3 mmol P/mL; 4,4 mEq K/mL. Some a carga de K à taxa total de K⁺ para respeitar o teto de 0,5 mEq/kg/h. Referências: DiBartola; BSAVA.
                     </div>
                 </div>
             )}
@@ -270,29 +399,37 @@ export const CalculatorPage: React.FC = () => {
                 <div className="space-y-4">
                     <div className="p-4 bg-green-50 dark:bg-green-900/40 rounded-lg">
                         <h4 className="font-bold text-green-800 dark:text-green-200 mb-2">Calculadora de Bicarbonato (HCO₃⁻)</h4>
-                        <p className="text-sm">Valores de referência: Cães 14-24 mEq/L, Gatos 14-20 mEq/L</p>
-                        <p className="text-sm mt-1"><strong>Indicação:</strong> pH &lt; 7.1 ou HCO₃⁻ &lt; 12 mEq/L</p>
+                        <p className="text-sm">Indicações: acidose metabólica grave (pH &lt; 7,1 ou HCO₃⁻ &lt; 10–12) após corrigir causas e volume.</p>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label className="block font-medium mb-1">HCO₃⁻ atual (mEq/L)</label>
-                            <input type="number" step="1" className={inputClasses} placeholder="Ex: 8" />
+                            <input inputMode="decimal" pattern="[0-9]*[.,]?[0-9]*" value={hco3CurrentStr} onChange={(e)=> setHco3CurrentStr(e.target.value)} className={inputClasses} placeholder="Ex: 8" />
                         </div>
                         <div>
                             <label className="block font-medium mb-1">HCO₃⁻ desejado (mEq/L)</label>
-                            <input type="number" step="1" className={inputClasses} placeholder="Ex: 15" />
+                            <input inputMode="decimal" pattern="[0-9]*[.,]?[0-9]*" value={hco3TargetStr} onChange={(e)=> setHco3TargetStr(e.target.value)} className={inputClasses} placeholder="Ex: 15" />
                         </div>
                         <div>
-                            <label className="block font-medium mb-1">Base Excess</label>
-                            <input type="number" step="1" className={inputClasses} placeholder="Ex: -12" />
+                            <label className="block font-medium mb-1">Fator (Vd)</label>
+                            <select className={inputClasses} defaultValue="0.3">
+                                <option value="0.3">0,3 (padrão)</option>
+                                <option value="0.4">0,4</option>
+                                <option value="0.5">0,5</option>
+                            </select>
                         </div>
                     </div>
                     <div className="p-4 bg-orange-50 dark:bg-orange-900/40 rounded-lg">
-                        <h5 className="font-bold text-orange-800 dark:text-orange-200">Fórmula do Déficit:</h5>
-                        <p className="text-sm mt-1"><strong>Déficit (mEq) = 0.3 × peso(kg) × (HCO₃⁻ desejado - atual)</strong></p>
-                        <p className="text-sm"><strong>Administrar:</strong> ¼ a ⅓ do déficit lentamente</p>
-                        <p className="text-sm text-red-600 dark:text-red-400 mt-2"><strong>Riscos:</strong> Hipernatremia, hipocalemia, alcalose</p>
+                        <h5 className="font-bold text-orange-800 dark:text-orange-200">Como calcular e administrar:</h5>
+                        <p className="text-sm mt-1"><strong>Déficit (mEq) = Vd × peso(kg) × (HCO₃⁻ alvo − atual)</strong> — Vd típico 0,3.</p>
+                        <p className="text-sm"><strong>Volume em mL</strong> de NaHCO₃ 8,4% = Déficit (mEq) (1 mL = 1 mEq). Iniciar com ~50% em 2–4 h e reavaliar.</p>
+                        <p className="text-sm text-red-600 dark:text-red-400 mt-2"><strong>Atenção:</strong> Não misturar com soluções contendo cálcio (ex.: LRS). Preferir SF 0,9% e/ou linha separada. Evitar em acidose respiratória isolada.</p>
                     </div>
+                    {hco3Calc && (
+                      <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                        <div className="text-sm">Déficit: <strong>{hco3Calc.deficit_mEq.toFixed(1)} mEq</strong> → Volume total 8,4%: <strong>{hco3Calc.volumeMl.toFixed(1)} mL</strong>. Inicial: <strong>{hco3Calc.initialMl.toFixed(1)} mL</strong> em 2–4 h.</div>
+                      </div>
+                    )}
                 </div>
             )}
 

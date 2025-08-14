@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import HelpHint from './HelpHint';
 import { FLUID_COMPATIBILITY } from '../data/content';
 
 export const FluidCompatibilityChecker: React.FC = () => {
@@ -38,8 +39,17 @@ export const FluidCompatibilityChecker: React.FC = () => {
     <div className="space-y-4">
       <div className="p-4 bg-blue-50 dark:bg-blue-900/40 rounded-lg">
         <h4 className="font-bold text-blue-800 dark:text-blue-200 mb-2">🧪 Verificador de Compatibilidade</h4>
-        <p className="text-sm text-blue-700 dark:text-blue-300">
+        <p className="text-sm text-blue-700 dark:text-blue-300 flex items-center gap-2">
           Verifique a compatibilidade entre fluidos e aditivos antes da administração
+          <HelpHint title="Como verificar compatibilidade?" size="popover">
+            <ul className="list-disc pl-5">
+              <li>NaHCO₃: não misturar com soluções com cálcio (ex.: Ringer Lactato) — precipitado.</li>
+              <li>Fosfatos (K/Na): evitar com cálcio — preferir SF 0,9%/D5W.</li>
+              <li>MgSO₄: incompatível com bicarbonato; cautela com cálcio (linha separada/flush).</li>
+              <li>Dextrose &gt; 5–10%: preferir via central; se periférica, monitorar flebite.</li>
+            </ul>
+            <div className="mt-2 text-xs opacity-80">Fontes: DiBartola; BSAVA; práticas de compatibilidade IV.</div>
+          </HelpHint>
         </p>
       </div>
 
@@ -121,9 +131,23 @@ export const FluidCompatibilityChecker: React.FC = () => {
                   </div>
                   <div>
                     <h5 className="font-bold text-yellow-800 dark:text-yellow-200">⚠️ Atenção</h5>
-                    <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                    <p className="text-sm text-yellow-700 dark:text-yellow-300 flex items-center gap-2">
                       Verificar compatibilidade específica
+                      <span className="align-middle">
+                        <button type="button" className="help-button" aria-label="Como verificar">
+                          ?
+                        </button>
+                      </span>
                     </p>
+                    <div className="mt-2 text-xs text-yellow-800 dark:text-yellow-300">
+                      <ul className="list-disc ml-5">
+                        <li>NaHCO₃ não misturar com fluidos que contenham cálcio (ex.: Ringer Lactato) — risco de precipitado.</li>
+                        <li>Fosfatos (K/Na) evitar com cálcio — usar SF 0,9% ou D5W.</li>
+                        <li>MgSO₄ é incompatível com bicarbonato; preferir SF 0,9%/D5W e linha separada/flush.</li>
+                        <li>Dextrose &gt; 5–10%: preferir via central; em periférica, infundir lentamente e monitorar.</li>
+                      </ul>
+                      <div className="mt-1 opacity-80">Fontes: DiBartola; BSAVA; práticas de compatibilidade IV.</div>
+                    </div>
                   </div>
                 </>
               )}

@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import HelpHint from './HelpHint';
 
 interface TooltipProps {
   content: React.ReactNode;
@@ -27,10 +28,10 @@ export const Tooltip: React.FC<TooltipProps> = ({ content, children }) => {
   );
 };
 
-export const InfoIcon: React.FC<{ content: React.ReactNode; ariaLabel?: string }> = ({ content, ariaLabel = 'Ajuda' }) => {
+export const InfoIcon: React.FC<{ content: React.ReactNode; ariaLabel?: string; size?: 'popover'|'dialog' }> = ({ content, ariaLabel = 'Ajuda', size = 'popover' }) => {
   return (
-    <Tooltip content={content}>
-      <button type="button" aria-label={ariaLabel} className="help-button">?</button>
-    </Tooltip>
+    <HelpHint title={ariaLabel} size={size}>
+      {content}
+    </HelpHint>
   );
 };

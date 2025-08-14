@@ -219,7 +219,7 @@ const PotassiumCalculator: React.FC<PotassiumCalculatorProps> = ({ className = '
               ⚠️ Lembretes Importantes
             </h3>
             <ul className="text-sm text-yellow-800 dark:text-yellow-200 space-y-1">
-              <li>• Limite ≤ valor do seu consenso (max_mEq_kg_h)</li>
+              <li>• Limite de segurança: ≤ {(guidance ? (guidance as any).limites.max_mEq_kg_h : 0.5).toFixed(2)} mEq/kg/h de K⁺ IV</li>
               <li>• Agitar MUITO BEM a bolsa após adicionar KCl</li>
               <li>• Monitorar ECG em casos graves</li>
               <li>• Verificar K⁺ sérico a cada 12-24h</li>

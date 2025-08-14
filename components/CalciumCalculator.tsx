@@ -15,7 +15,8 @@ const CalciumCalculator: React.FC<CalciumCalculatorProps> = ({ className = '', p
   const [totalCalcium, setTotalCalcium] = useState<number>(0);
   const [ionizedCalcium, setIonizedCalcium] = useState<number>(0);
   const [albumin, setAlbumin] = useState<number>(0);
-  const [phosphorus, setPhosphorus] = useState<number>(0);
+  const [phosphorusStr, setPhosphorusStr] = useState<string>('');
+  const [phosphorusUnit, setPhosphorusUnit] = useState<'mg/dL'|'mmol/L'>('mg/dL');
   const [species, setSpecies] = useState<'dog' | 'cat'>('dog');
   const [hasIonizedCalcium, setHasIonizedCalcium] = useState<boolean>(false);
 
@@ -78,10 +79,19 @@ const CalciumCalculator: React.FC<CalciumCalculatorProps> = ({ className = '', p
     return { status: 'Normal', severity: '', color: 'text-green-600' };
   };
 
+  // Utilitários de unidade
+  const convertPToMgDl = (value: number, unit: 'mg/dL'|'mmol/L') => {
+    if (Number.isNaN(value)) return 0;
+    // 1 mg/dL ≈ 0.323 mmol/L → mg/dL = mmol/L / 0.323
+    return unit === 'mg/dL' ? value : value / 0.323;
+  };
+
   // Calcular produto Ca x P
   const calculateCaPProduct = () => {
     const calciumToUse = hasIonizedCalcium ? ionizedCalcium * 4 : calculateCorrectedCalcium();
-    return calciumToUse * phosphorus;
+    const pNum = Number(String(phosphorusStr).replace(',', '.'));
+    const pMgDl = convertPToMgDl(pNum, phosphorusUnit);
+    return calciumToUse * (Number.isNaN(pMgDl) ? 0 : pMgDl);
   };
 
   // Calcular dose de gluconato de cálcio
@@ -174,16 +184,22 @@ const CalciumCalculator: React.FC<CalciumCalculatorProps> = ({ className = '', p
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Fósforo (mg/dL)
+              Fósforo
             </label>
-            <input
-              type="number"
-              value={phosphorus}
-              onChange={(e) => setPhosphorus(Number(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              placeholder="Ex: 4.5"
-              step="0.1"
-            />
+            <div className="flex gap-2">
+              <input
+                inputMode="decimal"
+                pattern="[0-9]*[.,]?[0-9]*"
+                value={phosphorusStr}
+                onChange={(e) => setPhosphorusStr(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                placeholder="Ex: 4.5"
+              />
+              <select value={phosphorusUnit} onChange={(e)=> setPhosphorusUnit(e.target.value as any)} className="px-2 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                <option value="mg/dL">mg/dL</option>
+                <option value="mmol/L">mmol/L</option>
+              </select>
+            </div>
           </div>
         </div>
 

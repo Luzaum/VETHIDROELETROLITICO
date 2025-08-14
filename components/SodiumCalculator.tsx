@@ -1,8 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { FLUIDS } from '../lib/fluids';
 import { loadConsensos, sodiumLimits } from '../lib/rules';
 import { HelpfulTip } from './HelpfulTip';
 import { Comorbidity, PhysiologicalState } from '../lib/types';
 import { InfoIcon } from './Tooltip';
+import HelpHint from './HelpHint';
 import { TIP_NA_CORRECTION_RATE, TIP_OSM_FORMULA } from '../data/tooltips';
 
 interface PatientBasics {
@@ -145,17 +147,26 @@ const SodiumCalculator: React.FC<SodiumCalculatorProps> = ({ className = '', pat
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Sódio do Fluido (mEq/L)
+              <span className="ml-1 align-middle">
+                <HelpHint title="O que significa o número?" size="popover">
+                  <p className="text-xs">É a concentração de sódio do fluido em mEq/L.</p>
+                  <ul className="list-disc ml-5 text-xs mt-1">
+                    <li>NaCl 0,9%: Na⁺ 154 / Cl⁻ 154 mEq/L</li>
+                    <li>Ringer Lactato: Na⁺ 130 / Cl⁻ 109 mEq/L (tampão lactato)</li>
+                    <li>Plasma-Lyte/Normosol: Na⁺ 140 / Cl⁻ 98 mEq/L (acetato/gluconato)</li>
+                    <li>D5W: sem eletrólitos</li>
+                  </ul>
+                </HelpHint>
+              </span>
             </label>
             <select
               value={fluidSodium}
               onChange={(e) => setFluidSodium(Number(e.target.value))}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             >
-              <option value={0}>D5W (0)</option>
-              <option value={77}>NaCl 0.45% (77)</option>
-              <option value={130}>Ringer Lactato (130)</option>
-              <option value={154}>NaCl 0.9% (154)</option>
-              <option value={513}>NaCl 3% (513)</option>
+              {Object.values(FLUIDS).map(f => (
+                <option key={f.key} value={f.Na}>{f.label}</option>
+              ))}
             </select>
           </div>
 
