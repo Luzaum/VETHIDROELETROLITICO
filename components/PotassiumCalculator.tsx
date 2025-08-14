@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { HelpfulTip } from './HelpfulTip';
 import { InfoIcon } from './Tooltip';
-import HelpPopover from './HelpPopover';
+import HelpHint from './HelpHint';
 import { TIP_K_HYPO_PATHO, TIP_K_IV_LIMITS, TIP_K_DILUTION } from '../data/tooltips';
 import { POTASSIUM_REPLACEMENT_TABLE_CONTENT } from '../data/content';
 import { loadConsensos, potassiumGuidance } from '../lib/rules';
@@ -82,7 +81,12 @@ const PotassiumCalculator: React.FC<PotassiumCalculatorProps> = ({ className = '
     const kclToAddMl = totalK_mEq / kclStockMeqPerMl;
     const kPerKgPerHour = (totalK_mEq / infusionTimeHours) / weight;
     const safeLimit = ((window as any).___consensosCache?.limites?.potassio?.max_mEq_kg_h) || 0.5;
-    return { kclPerLiter, volumeMl, totalK_mEq, kclToAddMl, kPerKgPerHour, safeLimit, isSafe: kPerKgPerHour <= safeLimit };
+    const finalVolumeMl = volumeMl + kclToAddMl;
+    const infusionRateMlH = finalVolumeMl / infusionTimeHours;
+    const concPeripheral = ((window as any).___consensosCache?.limites?.potassio?.conc_max_mEq_L_periferico) || 60;
+    const concCentral = ((window as any).___consensosCache?.limites?.potassio?.conc_max_mEq_L_central) || 100;
+    const finalConcentrationMeqL = (totalK_mEq / (finalVolumeMl / 1000));
+    return { kclPerLiter, volumeMl, finalVolumeMl, infusionRateMlH, totalK_mEq, kclToAddMl, kPerKgPerHour, safeLimit, isSafe: kPerKgPerHour <= safeLimit, concPeripheral, concCentral, finalConcentrationMeqL };
   };
 
   const potassiumStatus = getPotassiumStatus();

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { PatientInfo, Species, PhysiologicalState, Comorbidity } from '../types';
 import { InfoIcon } from '../components/Tooltip';
 import HelpPopover from '../components/HelpPopover';
@@ -7,6 +7,8 @@ import SodiumCalculator from '../components/SodiumCalculator';
 import PotassiumCalculator from '../components/PotassiumCalculator';
 import CalciumCalculator from '../components/CalciumCalculator';
 import { FluidCompatibilityChecker } from '../components/FluidCompatibilityChecker';
+import { applyModifiers, loadConsensos } from '../lib/rules';
+import { PatientContext } from '../lib/types';
 
 const infusionTimeTooltipContent = (
     <div className="text-left">
@@ -129,12 +131,15 @@ export const CalculatorPage: React.FC = () => {
     const dose = Number(String(mgDoseStr).replace(',','.')) || 0;
     const time = Number(String(mgTimeStr).replace(',','.')) || 0;
     if (w <= 0 || dose <= 0 || time <= 0) return null;
-    const total_mEq = dose * w; // para bolus e também por 24h para CRI (dose já é mEq/kg)
+    const total_mEq = dose * w; // mEq totais a administrar
     const mgPerMl = 4; // mEq/mL (MgSO4 50%)
     const drugMl = total_mEq / mgPerMl;
-    const volumeMl = mgContainerVolume(mgContainer) || (mgMode === 'cri' ? 500 : 20);
+    const containerMl = mgContainerVolume(mgContainer) || (mgMode === 'cri' ? 100 : 20);
+    // Escolher volume final sensato: pelo menos droga + 5 mL; se recipiente for bolsa, não use 1000 por padrão
+    const minFinal = Math.max(drugMl + 5, 20);
+    const volumeMl = Math.max(minFinal, containerMl);
     const diluentMl = Math.max(0, volumeMl - drugMl);
-    const infTime = mgMode === 'cri' ? (Number(String(mgTimeStr).replace(',','.')) || 24) : time; 
+    const infTime = time; 
     const rateMlH = infTime > 0 ? volumeMl / infTime : 0;
     return { total_mEq, drugMl, volumeMl, diluentMl, rateMlH };
   }, [patientInfo.weight, mgDoseStr, mgTimeStr, mgMode, mgContainer]);
@@ -156,7 +161,9 @@ export const CalculatorPage: React.FC = () => {
     const mmolP = dose * w * time;
     const mmolPerMl = 3; // tanto KPhos quanto NaPhos usualmente 3 mmol P/mL
     const drugMl = mmolP / mmolPerMl;
-    const volumeMl = pContainerVolume(pContainer) || 500;
+    const containerMl = pContainerVolume(pContainer) || 100;
+    const minFinal = Math.max(drugMl + 5, 20);
+    const volumeMl = Math.max(minFinal, containerMl);
     const diluentMl = Math.max(0, volumeMl - drugMl);
     const rateMlH = volumeMl / time;
     const kAdded_mEq = pSalt === 'kphos' ? drugMl * 4.4 : 0;
@@ -180,6 +187,22 @@ export const CalculatorPage: React.FC = () => {
     const initialMl = deficit_mEq * 0.5;
     return { deficit_mEq, volumeMl, initialMl };
   }, [patientInfo.weight, hco3CurrentStr, hco3TargetStr, hco3Vd]);
+
+  // Modificadores (estado/comorbidades) para alertas
+  const [consensos, setConsensos] = useState<any | null>(null);
+  const [consensoReady, setConsensoReady] = useState(false);
+  useEffect(() => { loadConsensos().then(c => { setConsensos(c); setConsensoReady(true); }).catch(()=> setConsensoReady(false)); }, []);
+  const patientCtx: PatientContext = useMemo(() => ({
+    species: patientInfo.species === Species.Dog ? 'cao' : 'gato',
+    pesoKg: patientInfo.weight || 0,
+    estado: patientInfo.state as any,
+    comorbidades: [patientInfo.comorbidity as any],
+    evolucao: 'agudo'
+  }), [patientInfo]);
+  const mods = useMemo(() => {
+    if (!consensoReady || !consensos) return null;
+    return applyModifiers(consensos as any, patientCtx);
+  }, [consensoReady, consensos, patientCtx]);
 
   return (
     <div className="container mx-auto mt-8 px-4 pb-12">
@@ -291,7 +314,7 @@ export const CalculatorPage: React.FC = () => {
                             <label className="block font-medium mb-1">Modo</label>
                             <select className={inputClasses} value={mgMode} onChange={(e)=> setMgMode(e.target.value as any)}>
                                 <option value="bolus">Bolus</option>
-                                <option value="cri">CRI 24h</option>
+                                <option value="cri">CRI</option>
                             </select>
                         </div>
                         <div>
@@ -328,7 +351,8 @@ export const CalculatorPage: React.FC = () => {
                     </div>
                     {mgCalc && (
                       <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                        <div className="text-sm">Volume da droga: <strong>{mgCalc.drugMl.toFixed(2)} mL</strong>; Completar com diluente até <strong>{mgCalc.volumeMl} mL</strong>. Taxa sugerida: <strong>{mgCalc.rateMlH.toFixed(1)} mL/h</strong>.</div>
+                        <div className="text-sm">Volume do MgSO₄ 50%: <strong>{mgCalc.drugMl.toFixed(2)} mL</strong>; completar com diluente até <strong>{mgCalc.volumeMl.toFixed(0)} mL</strong>. Taxa sugerida: <strong>{mgCalc.rateMlH.toFixed(1)} mL/h</strong>.</div>
+                        <div className="text-xs mt-1 text-blue-800 dark:text-blue-300">Indicação de literatura: reposições em 10–20 min (bolus) ou CRI ao longo de 6–24 h, conforme quadro e comorbidades.</div>
                       </div>
                     )}
                     <div className="p-4 bg-yellow-50 dark:bg-yellow-900/40 rounded-lg text-sm">
@@ -385,7 +409,7 @@ export const CalculatorPage: React.FC = () => {
                     </div>
                     {pCalc && (
                       <div className={`p-4 rounded-lg ${pCalc.kSafe ? 'bg-purple-50 dark:bg-purple-900/20' : 'bg-red-50 dark:bg-red-900/20'}`}>
-                        <div className="text-sm">Volume do sal: <strong>{pCalc.drugMl.toFixed(2)} mL</strong>; completar com diluente até <strong>{pCalc.volumeMl} mL</strong>. Taxa: <strong>{pCalc.rateMlH.toFixed(1)} mL/h</strong>.</div>
+                        <div className="text-sm">Volume do sal: <strong>{pCalc.drugMl.toFixed(2)} mL</strong>; completar com diluente até <strong>{pCalc.volumeMl.toFixed(0)} mL</strong>. Taxa: <strong>{pCalc.rateMlH.toFixed(1)} mL/h</strong>.</div>
                         <div className="text-sm mt-1">K⁺ adicionado: <strong>{pCalc.kAdded_mEq.toFixed(2)} mEq</strong> → {pCalc.k_mEq_kg_h.toFixed(3)} mEq/kg/h {pCalc.kSafe ? '✅ dentro do limite (≤ 0,5)' : '🚨 acima do limite (0,5)'}.</div>
                       </div>
                     )}
@@ -470,6 +494,20 @@ export const CalculatorPage: React.FC = () => {
           <h2 className="text-2xl font-bold mb-4 border-b pb-2 dark:border-gray-600">🧪 Compatibilidade de Fluidos</h2>
           <FluidCompatibilityChecker />
         </div>
+
+        {/* Alertas por Estado/Comorbidades (contextuais) */}
+        {mods && (
+          <div className="lg:col-span-2 bg-yellow-50 dark:bg-yellow-900/30 p-4 rounded-lg border-l-4 border-yellow-400">
+            <h3 className="font-bold text-yellow-900 dark:text-yellow-100 mb-1">Ajustes por perfil do paciente</h3>
+            <ul className="text-sm text-yellow-800 dark:text-yellow-200 list-disc ml-5">
+              {mods.reduzirRatePercent ? <li>Reduzir taxa em <strong>{mods.reduzirRatePercent}%</strong> conforme estado/comorbidades.</li> : null}
+              {mods.reduzirVolumePercent ? <li>Reduzir volume total em <strong>{mods.reduzirVolumePercent}%</strong>.</li> : null}
+              {mods.evitarFluido.length > 0 ? <li>Evitar: {mods.evitarFluido.join(', ')}.</li> : null}
+              {mods.preferirFluido.length > 0 ? <li>Preferir: {mods.preferirFluido.join(', ')}.</li> : null}
+              {mods.avisos.length > 0 ? mods.avisos.map((a:string, i:number)=>(<li key={i}>{a}</li>)) : null}
+            </ul>
+          </div>
+        )}
 
         {/* Removido: alertas por estado fisiológico (a pedido) */}
 
