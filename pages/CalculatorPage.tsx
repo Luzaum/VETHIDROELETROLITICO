@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { PatientInfo, Species, PhysiologicalState, Comorbidity } from '../types';
 import { InfoIcon } from '../components/Tooltip';
 import HelpPopover from '../components/HelpPopover';
-import { POTASSIUM_REPLACEMENT_TABLE_CONTENT } from '../data/content';
+import { POTASSIUM_REPLACEMENT_TABLE_CONTENT, MAGNESIUM_REPLACEMENT_TABLE_CONTENT, PHOSPHATE_REPLACEMENT_TABLE_CONTENT } from '../data/content';
 import SodiumCalculator from '../components/SodiumCalculator';
 import PotassiumCalculator from '../components/PotassiumCalculator';
 import CalciumCalculator from '../components/CalciumCalculator';
@@ -48,7 +48,6 @@ export const CalculatorPage: React.FC = () => {
 
   const calculationResult = useMemo(() => {
     if (patientInfo.weight <= 0 || currentK <= 0 || infusionTime <= 0) return null;
-    
     let kToAddPerLiter = 20; // Default
     if (currentK < 2.0) kToAddPerLiter = 80;
     else if (currentK <= 2.5) kToAddPerLiter = 60;
@@ -62,9 +61,7 @@ export const CalculatorPage: React.FC = () => {
     const maxInfusionRateMeqKgHr = 0.5;
     const patientMaxMeqHr = patientInfo.weight * maxInfusionRateMeqKgHr;
     const actualInfusionRateMeqHr = totalKToAdd / infusionTime;
-
     const isSafe = actualInfusionRateMeqHr <= patientMaxMeqHr;
-    
     const infusionRateMlHr = fluidVolume / infusionTime;
 
     return {
@@ -85,13 +82,10 @@ export const CalculatorPage: React.FC = () => {
     const boundedDehydration = Math.max(0, Math.min(15, dehydrationPercent || 0));
     const deficitMl = (boundedDehydration / 100) * weight * 1000;
 
-    // Manutenção empírica: cães 60 mL/kg/dia, gatos 50 mL/kg/dia
     const maintenanceRateMlKgDay = patientInfo.species === Species.Dog ? 60 : 50;
     const maintenanceMlDay = maintenanceRateMlKgDay * weight;
     const maintenanceMlHr = maintenanceMlDay / 24;
-
     const lossesMlHr = (ongoingLossesMlKgHr || 0) * weight;
-
     const total24hMl = deficitMl + maintenanceMlDay + (lossesMlHr * 24);
     const suggestedMlHr = total24hMl / 24;
 
@@ -119,47 +113,38 @@ export const CalculatorPage: React.FC = () => {
   const [mgTimeStr, setMgTimeStr] = useState<string>('0.25'); // horas
   const [mgContainer, setMgContainer] = useState<string>('seringa20');
   const [mgDiluent, setMgDiluent] = useState<string>('NaCl 0.9%');
-
-  const mgContainerVolume = (id: string) => {
-    if (id.startsWith('seringa')) return Number(id.replace('seringa','')) || 20;
-    if (id.startsWith('bolsa')) return Number(id.replace('bolsa','')) || 500;
-    return 0;
-  };
-
+  const mgContainerVolume = (id: string) => { if (id.startsWith('seringa')) return Number(id.replace('seringa','')) || 20; if (id.startsWith('bolsa')) return Number(id.replace('bolsa','')) || 500; return 0; };
   const mgCalc = useMemo(() => {
     const w = patientInfo.weight || 0;
     const dose = Number(String(mgDoseStr).replace(',','.')) || 0;
     const time = Number(String(mgTimeStr).replace(',','.')) || 0;
     if (w <= 0 || dose <= 0 || time <= 0) return null;
-    const total_mEq = dose * w; // mEq totais a administrar
-    const mgPerMl = 4; // mEq/mL (MgSO4 50%)
+    const total_mEq = dose * w;
+    const mgPerMl = 4;
     const drugMl = total_mEq / mgPerMl;
-    const containerMl = mgContainerVolume(mgContainer) || (mgMode === 'cri' ? 100 : 20);
-    // Escolher volume final sensato: pelo menos droga + 5 mL; se recipiente for bolsa, não use 1000 por padrão
+    const containerMl = mgContainerVolume(mgContainer) || 100;
     const minFinal = Math.max(drugMl + 5, 20);
     const volumeMl = Math.max(minFinal, containerMl);
     const diluentMl = Math.max(0, volumeMl - drugMl);
-    const infTime = time; 
+    const infTime = time;
     const rateMlH = infTime > 0 ? volumeMl / infTime : 0;
     return { total_mEq, drugMl, volumeMl, diluentMl, rateMlH };
   }, [patientInfo.weight, mgDoseStr, mgTimeStr, mgMode, mgContainer]);
 
   // Fósforo
   const [pSalt, setPSalt] = useState<'kphos'|'naphos'>('kphos');
-  const [pDoseStr, setPDoseStr] = useState<string>('0.02'); // mmol/kg/h
-  const [pTimeStr, setPTimeStr] = useState<string>('4'); // horas
+  const [pDoseStr, setPDoseStr] = useState<string>('0.02');
+  const [pTimeStr, setPTimeStr] = useState<string>('4');
   const [pContainer, setPContainer] = useState<string>('bolsa500');
   const [pDiluent, setPDiluent] = useState<string>('NaCl 0.9%');
-
   const pContainerVolume = mgContainerVolume;
-
   const pCalc = useMemo(() => {
     const w = patientInfo.weight || 0;
     const dose = Number(String(pDoseStr).replace(',','.')) || 0;
     const time = Number(String(pTimeStr).replace(',','.')) || 0;
     if (w <= 0 || dose <= 0 || time <= 0) return null;
     const mmolP = dose * w * time;
-    const mmolPerMl = 3; // tanto KPhos quanto NaPhos usualmente 3 mmol P/mL
+    const mmolPerMl = 3;
     const drugMl = mmolP / mmolPerMl;
     const containerMl = pContainerVolume(pContainer) || 100;
     const minFinal = Math.max(drugMl + 5, 20);
@@ -168,7 +153,7 @@ export const CalculatorPage: React.FC = () => {
     const rateMlH = volumeMl / time;
     const kAdded_mEq = pSalt === 'kphos' ? drugMl * 4.4 : 0;
     const k_mEq_kg_h = (kAdded_mEq / time) / (w || 1);
-    const kSafe = k_mEq_kg_h <= 0.5; // teto clássico; pode ser ajustado pelo consenso
+    const kSafe = k_mEq_kg_h <= 0.5;
     return { mmolP, drugMl, volumeMl, diluentMl, rateMlH, kAdded_mEq, k_mEq_kg_h, kSafe };
   }, [patientInfo.weight, pDoseStr, pTimeStr, pSalt, pContainer]);
 
@@ -176,19 +161,17 @@ export const CalculatorPage: React.FC = () => {
   const [hco3CurrentStr, setHco3CurrentStr] = useState<string>('8');
   const [hco3TargetStr, setHco3TargetStr] = useState<string>('15');
   const [hco3Vd, setHco3Vd] = useState<number>(0.3);
-
   const hco3Calc = useMemo(() => {
     const w = patientInfo.weight || 0;
     const cur = Number(String(hco3CurrentStr).replace(',','.')) || 0;
     const tgt = Number(String(hco3TargetStr).replace(',','.')) || 0;
     if (w <= 0 || cur <= 0 || tgt <= 0 || tgt <= cur) return null;
     const deficit_mEq = hco3Vd * w * (tgt - cur);
-    const volumeMl = deficit_mEq; // 8.4% = 1 mEq/mL
+    const volumeMl = deficit_mEq;
     const initialMl = deficit_mEq * 0.5;
     return { deficit_mEq, volumeMl, initialMl };
   }, [patientInfo.weight, hco3CurrentStr, hco3TargetStr, hco3Vd]);
 
-  // Modificadores (estado/comorbidades) para alertas
   const [consensos, setConsensos] = useState<any | null>(null);
   const [consensoReady, setConsensoReady] = useState(false);
   useEffect(() => { loadConsensos().then(c => { setConsensos(c); setConsensoReady(true); }).catch(()=> setConsensoReady(false)); }, []);
@@ -199,10 +182,7 @@ export const CalculatorPage: React.FC = () => {
     comorbidades: [patientInfo.comorbidity as any],
     evolucao: 'agudo'
   }), [patientInfo]);
-  const mods = useMemo(() => {
-    if (!consensoReady || !consensos) return null;
-    return applyModifiers(consensos as any, patientCtx);
-  }, [consensoReady, consensos, patientCtx]);
+  const mods = useMemo(() => { if (!consensoReady || !consensos) return null; return applyModifiers(consensos as any, patientCtx); }, [consensoReady, consensos, patientCtx]);
 
   return (
     <div className="container mx-auto mt-8 px-4 pb-12">
@@ -355,6 +335,7 @@ export const CalculatorPage: React.FC = () => {
                         <div className="text-xs mt-1 text-blue-800 dark:text-blue-300">Indicação de literatura: reposições em 10–20 min (bolus) ou CRI ao longo de 6–24 h, conforme quadro e comorbidades.</div>
                       </div>
                     )}
+                    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">{MAGNESIUM_REPLACEMENT_TABLE_CONTENT}</div>
                     <div className="p-4 bg-yellow-50 dark:bg-yellow-900/40 rounded-lg text-sm">
                         Compatibilidade: MgSO₄ é incompatível com bicarbonato; atenção com soluções com cálcio — preferir linha separada/flush. Taxa de bolus 10–20 min; CRI 6–24 h. <em>Fontes: BSAVA (Magnésio); DiBartola.</em>
                     </div>
@@ -413,6 +394,7 @@ export const CalculatorPage: React.FC = () => {
                         <div className="text-sm mt-1">K⁺ adicionado: <strong>{pCalc.kAdded_mEq.toFixed(2)} mEq</strong> → {pCalc.k_mEq_kg_h.toFixed(3)} mEq/kg/h {pCalc.kSafe ? '✅ dentro do limite (≤ 0,5)' : '🚨 acima do limite (0,5)'}.</div>
                       </div>
                     )}
+                    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">{PHOSPHATE_REPLACEMENT_TABLE_CONTENT}</div>
                     <div className="p-4 bg-red-50 dark:bg-red-900/40 rounded-lg text-sm">
                         K-Phos: 3 mmol P/mL; 4,4 mEq K/mL. Some a carga de K à taxa total de K⁺ para respeitar o teto de 0,5 mEq/kg/h. <em>Fontes: DiBartola (Fósforo); BSAVA (DKA/realimentação).</em>
                     </div>
