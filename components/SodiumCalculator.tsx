@@ -249,21 +249,7 @@ const SodiumCalculator: React.FC<SodiumCalculatorProps> = ({ className = '', pat
             )}
           </div>
 
-          <div className="mt-2">
-            {(() => {
-              const refs = limits ? ((limits as any).refsUsadas || []) : [];
-              const literature = refs.length > 0 ? `📚 ${refs.join(' • ')}` : '📚 Ajuste suas referências no consensos.json para exibir aqui.';
-              return (
-                <HelpfulTip
-                  tabs={[
-                    { id: 'basico', label: 'Básico', markdown: 'TBW = peso × coeficiente por espécie. Defina alvo diário via agudo↔crônico. Risco osmótico se corrigir rápido.' },
-                    { id: 'fisio', label: 'Fisiologia', markdown: 'ADH e osmolalidade governam a água livre. Hiponatremia aguda vs crônica exigem velocidades diferentes.' },
-                    { id: 'lit', label: 'Literatura', markdown: literature }
-                  ]}
-                />
-              );
-            })()}
-          </div>
+          {/* Conteúdo de ajuda foi movido para InfoIcon nos rótulos e tabelas principais */}
         </div>
       </div>
     </div>

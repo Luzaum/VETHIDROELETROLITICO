@@ -244,21 +244,7 @@ const PotassiumCalculator: React.FC<PotassiumCalculatorProps> = ({ className = '
             </div>
           )}
 
-          <div className="mt-2">
-            {(() => {
-              const refs = guidance ? ((guidance as any).refsUsadas || []) : [];
-              const literature = refs.length > 0 ? `📚 ${refs.join(' • ')}` : '📚 Ajuste suas referências no consensos.json para ver as fontes aqui.';
-              return (
-                <HelpfulTip
-                  tabs={[
-                    { id: 'basico', label: 'Básico', markdown: 'NUNCA bolus IV. Concentração da bolsa e taxa por kg são limitadas pelo seu consenso. KCl 19,1% ≈ 2,56 mEq/mL.' },
-                    { id: 'fisio', label: 'Fisiologia', markdown: 'Na⁺/K⁺-ATPase; insulina e β-agonista movem K⁺ para dentro; acidose desloca K⁺ para fora; ECG nas alterações.' },
-                    { id: 'lit', label: 'Literatura', markdown: literature }
-                  ]}
-                />
-              );
-            })()}
-          </div>
+          {/* Conteúdo de ajuda foi movido para InfoIcon nos rótulos e tabela visível acima */}
         </div>
       </div>
     </div>
