@@ -37,6 +37,38 @@ export const POTASSIUM_REPLACEMENT_TABLE_CONTENT = (
     </div>
   );
 
+export const SODIUM_REPLACEMENT_TABLE_CONTENT = (
+  <div className="text-left">
+    <p className="font-bold mb-2">Tabela prática de correção de Sódio (segurança)</p>
+    <table className="w-full text-xs border-collapse">
+      <thead className="bg-gray-700 text-white">
+        <tr>
+          <th className="border border-gray-600 p-1">Cenário</th>
+          <th className="border border-gray-600 p-1">Correção máx. (mEq/L/h)</th>
+          <th className="border border-gray-600 p-1">Correção máx. 24h (mEq/L)</th>
+          <th className="border border-gray-600 p-1">Notas</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td className="border border-gray-600 p-1">Hiponatremia crônica</td>
+          <td className="border border-gray-600 p-1">≤ 0,5</td>
+          <td className="border border-gray-600 p-1">≤ 10–12</td>
+          <td className="border border-gray-600 p-1">Risco de desmielinização se exceder</td>
+        </tr>
+        <tr>
+          <td className="border border-gray-600 p-1">Hipernatremia</td>
+          <td className="border border-gray-600 p-1">≤ 0,5</td>
+          <td className="border border-gray-600 p-1">≤ 10–12 de queda</td>
+          <td className="border border-gray-600 p-1">Evitar edema cerebral</td>
+        </tr>
+      </tbody>
+    </table>
+    <p className="text-xs mt-2">Cálculo do fluxo (mL/h) depende do TBW (cão 0,6; gato 0,5–0,6), do Na⁺ do fluido e da janela de tempo escolhida.</p>
+    <p className="text-xs mt-1 italic">Fonte: BSAVA – Distúrbios do Sódio; DiBartola – Água/Na⁺.</p>
+  </div>
+);
+
 export const MAGNESIUM_REPLACEMENT_TABLE_CONTENT = (
   <div className="text-left">
     <p className="font-bold mb-2">Tabela prática de reposição de Magnésio (MgSO₄ 50%)</p>
@@ -975,6 +1007,64 @@ export const ELECTROLYTE_LIBRARY: ElectrolyteData[] = [
 
 // Dados das doenças e protocolos terapêuticos
 export const DISEASE_PROTOCOLS = [
+    {
+        id: 'hyperchl_acidosis',
+        name: 'Acidose Metabólica Hiperclorêmica',
+        electrolytes: ['Hipercloremia', 'Acidose', 'Bicarbonato baixo'],
+        content: [
+            { type: 'header', content: '🧪 Acidose Hiperclorêmica — fisiopatologia' },
+            { type: 'paragraph', content: 'Aumento do Cl⁻ reduz o strong ion difference (SID) levando a acidose metabólica. Causas: diarreia intensa (perda de HCO₃⁻), RTA, excesso de NaCl 0,9%.' },
+            { type: 'subheader', content: 'Diagnóstico' },
+            { type: 'list', content: <>
+                <li>Cl⁻ elevado para o Na⁺, HCO₃⁻ baixo, anion gap normal</li>
+                <li>História de diarreia/infusão de NaCl 0,9%</li>
+            </> },
+            { type: 'warning', title: 'Tratamento', content: <>
+                <strong>1.</strong> Trocar NaCl 0,9% por cristaloide balanceado (LR/Plasma-Lyte).<br/>
+                <strong>2.</strong> Tratar causa base (GI/RTA).<br/>
+                <strong>3.</strong> Considerar bicarbonato quando pH &lt; 7,1 ou HCO₃⁻ &lt; 10–12.
+            </> },
+        ]
+    },
+    {
+        id: 'hypochl_alkalosis',
+        name: 'Alcalose Metabólica Hipoclorêmica',
+        electrolytes: ['Hipocloremia', 'Alcalose'],
+        content: [
+            { type: 'header', content: '🧪 Alcalose Hipoclorêmica — fisiopatologia' },
+            { type: 'paragraph', content: 'Perda de HCl (vômitos/obstrução pilórica) causa alcalose metabólica e hipocloremia; reabsorção renal de HCO₃⁻ é favorecida.' },
+            { type: 'subheader', content: 'Diagnóstico' },
+            { type: 'list', content: <>
+                <li>Cl⁻ baixo, HCO₃⁻ elevado</li>
+                <li>Hipovolemia, história de vômitos/obstrução</li>
+            </> },
+            { type: 'warning', title: 'Tratamento', content: <>
+                <strong>1.</strong> Repor volume com NaCl 0,9% (corrige Cl⁻/volume).<br/>
+                <strong>2.</strong> Tratar causa base.<br/>
+                <strong>3.</strong> Monitorar K⁺/Cl⁻ seriados.
+            </> },
+        ]
+    },
+    {
+        id: 'chronic_enteropathy',
+        name: 'Enteropatias Crônicas',
+        electrolytes: ['Hipocloremia', 'Hipocalemia', 'Hipoproteinemia'],
+        content: [
+            { type: 'header', content: '🍽️ Enteropatias crônicas — visão geral' },
+            { type: 'paragraph', content: 'Perdas GI crônicas levam a desequilíbrios eletrolíticos (Cl⁻/K⁺) e proteínas; risco de desidratação e acid–base alterado.' },
+            { type: 'subheader', content: 'Diagnóstico' },
+            { type: 'list', content: <>
+                <li>História/Exame: diarreia crônica, perda de peso</li>
+                <li>Eletrólitos: Cl⁻/K⁺ baixos; albumina baixa</li>
+                <li>Abordagem: dieta, antiparasitário, ATB de prova, biopsia conforme resposta</li>
+            </> },
+            { type: 'warning', title: 'Tratamento e reposição', content: <>
+                <strong>1.</strong> Repor Cl⁻ com NaCl 0,9% e tratar desidratação.<br/>
+                <strong>2.</strong> Repor K⁺ conforme tabela ACVIM (teto 0,5 mEq/kg/h).<br/>
+                <strong>3.</strong> Considerar reposição de albumina quando indicada.<br/>
+            </> },
+        ]
+    },
     {
         id: 'addison',
         name: 'Hipoadrenocorticismo (Doença de Addison)',

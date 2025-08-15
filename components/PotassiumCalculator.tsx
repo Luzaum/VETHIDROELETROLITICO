@@ -83,10 +83,12 @@ const PotassiumCalculator: React.FC<PotassiumCalculatorProps> = ({ className = '
     const safeLimit = ((window as any).___consensosCache?.limites?.potassio?.max_mEq_kg_h) || 0.5;
     const finalVolumeMl = volumeMl + kclToAddMl;
     const infusionRateMlH = finalVolumeMl / infusionTimeHours;
+    const minHoursForSafety = Math.ceil((totalK_mEq) / (safeLimit * Math.max(1, weight)));
+    const isTimeSafe = infusionTimeHours >= minHoursForSafety;
     const concPeripheral = ((window as any).___consensosCache?.limites?.potassio?.conc_max_mEq_L_periferico) || 60;
     const concCentral = ((window as any).___consensosCache?.limites?.potassio?.conc_max_mEq_L_central) || 100;
     const finalConcentrationMeqL = (totalK_mEq / (finalVolumeMl / 1000));
-    return { kclPerLiter, volumeMl, finalVolumeMl, infusionRateMlH, totalK_mEq, kclToAddMl, kPerKgPerHour, safeLimit, isSafe: kPerKgPerHour <= safeLimit, concPeripheral, concCentral, finalConcentrationMeqL };
+    return { kclPerLiter, volumeMl, finalVolumeMl, infusionRateMlH, totalK_mEq, kclToAddMl, kPerKgPerHour, safeLimit, isSafe: kPerKgPerHour <= safeLimit, concPeripheral, concCentral, finalConcentrationMeqL, isTimeSafe, minHoursForSafety };
   };
 
   const potassiumStatus = getPotassiumStatus();
@@ -203,6 +205,13 @@ const PotassiumCalculator: React.FC<PotassiumCalculatorProps> = ({ className = '
                     <div className="text-sm font-medium text-blue-800 dark:text-blue-200">K⁺ total no preparo:</div>
                     <div className="text-lg font-bold text-blue-900 dark:text-blue-100">{calc.totalK_mEq.toFixed(2)} mEq</div>
                   </div>
+                  <div>
+                    <div className="text-sm font-medium text-blue-800 dark:text-blue-200">Taxa de infusão (mL/h):</div>
+                    <div className="text-lg font-bold text-blue-900 dark:text-blue-100">{calc.infusionRateMlH.toFixed(1)} mL/h</div>
+                  </div>
+                  {calc && !(calc as any).isTimeSafe && (
+                    <div className="text-xs text-red-700 dark:text-red-300">Tempo insuficiente para segurança ACVIM. Mínimo recomendado: {(calc as any).minHoursForSafety} h para manter ≤ {(calc as any).safeLimit} mEq/kg/h.</div>
+                  )}
                   <div>
                     <div className="text-sm font-medium text-blue-800 dark:text-blue-200">KCl 19,1% a adicionar:</div>
                     <div className="text-lg font-bold text-blue-900 dark:text-blue-100">{calc.kclToAddMl.toFixed(2)} mL</div>

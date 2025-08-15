@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { FLUIDS } from '../lib/fluids';
 import { loadConsensos, sodiumLimits } from '../lib/rules';
-import { HelpfulTip } from './HelpfulTip';
 import { Comorbidity, PhysiologicalState } from '../lib/types';
 import { InfoIcon } from './Tooltip';
 import HelpHint from './HelpHint';
 import { TIP_NA_CORRECTION_RATE, TIP_OSM_FORMULA } from '../data/tooltips';
+import { SODIUM_REPLACEMENT_TABLE_CONTENT } from '../data/content';
 
 interface PatientBasics {
   species: 'dog' | 'cat';
@@ -24,12 +24,17 @@ const SodiumCalculator: React.FC<SodiumCalculatorProps> = ({ className = '', pat
   const [currentSodium, setCurrentSodium] = useState<number>(0);
   const [targetSodium, setTargetSodium] = useState<number>(145);
   const [fluidSodium, setFluidSodium] = useState<number>(154);
-  const [desiredRate, setDesiredRate] = useState<number>(0.5);
+  // substitui taxa desejada por duração e cálculo automático
+  const [correctionHours, setCorrectionHours] = useState<number>(24);
   const [species, setSpecies] = useState<'dog' | 'cat'>('dog');
   const [state, setState] = useState<PhysiologicalState>('adulto');
   const [comorbidities, setComorbidities] = useState<Comorbidity[]>(['nenhuma']);
   const [evolucao, setEvolucao] = useState<'agudo'|'cronico'>('agudo');
   const [consensoReady, setConsensoReady] = useState(false);
+  // UI de recipiente para preparar a solução
+  const [container, setContainer] = useState<'syringe'|'bag'>('bag');
+  const [syringeSize, setSyringeSize] = useState<number>(20);
+  const [bagVolume, setBagVolume] = useState<number>(500);
 
   useEffect(() => {
     loadConsensos().then((c) => {
@@ -69,11 +74,12 @@ const SodiumCalculator: React.FC<SodiumCalculatorProps> = ({ className = '', pat
   const calculateInfusionRate = () => {
     if (weight <= 0 || currentSodium <= 0 || fluidSodium <= currentSodium || !limits) return 0;
     const ACT = (limits as any).limites.tbwCoef * weight;
-    const maxHora = (limits as any).limites.maxHora_mEqL;
-    const desired = Math.min(desiredRate, maxHora || desiredRate);
-    const rateLh = (desired * (ACT + 1)) / (fluidSodium - currentSodium);
+    const deltaNa = (targetSodium - currentSodium);
+    const hours = Math.max(1, correctionHours || 24);
+    const rateLh = ((deltaNa / hours) * (ACT + 1)) / (fluidSodium - currentSodium);
     return rateLh * 1000;
   };
+  const calcContainerMl = () => container === 'bag' ? bagVolume : syringeSize;
 
   const calculateWaterDeficit = () => {
     if (weight <= 0 || currentSodium <= 0 || !limits) return 0;
@@ -110,6 +116,38 @@ const SodiumCalculator: React.FC<SodiumCalculatorProps> = ({ className = '', pat
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Input Section */}
         <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Recipiente</label>
+              <select value={container} onChange={(e)=> setContainer(e.target.value as 'syringe'|'bag')} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                <option value="syringe">Seringa</option>
+                <option value="bag">Bolsa</option>
+              </select>
+            </div>
+            {container === 'syringe' ? (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Seringa (mL)</label>
+                <select value={syringeSize} onChange={(e)=> setSyringeSize(Number(e.target.value))} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={60}>60</option>
+                </select>
+              </div>
+            ) : (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bolsa (mL)</label>
+                <select value={bagVolume} onChange={(e)=> setBagVolume(Number(e.target.value))} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                  <option value={250}>250</option>
+                  <option value={500}>500</option>
+                  <option value={1000}>1000</option>
+                </select>
+              </div>
+            )}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Duração (h)</label>
+              <input type="number" value={correctionHours} onChange={(e)=> setCorrectionHours(Number(e.target.value))} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+            </div>
+          </div>
           {/* Espécie removida aqui: já definida em "Dados do Paciente" */}
 
           {/* Estado fisiológico e comorbidades removidos: já definidos em "Dados do Paciente" */}
@@ -172,17 +210,10 @@ const SodiumCalculator: React.FC<SodiumCalculatorProps> = ({ className = '', pat
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Taxa Desejada (mEq/L/h)
+              Duração da correção (h)
               <span className="ml-1 align-middle"><InfoIcon content={TIP_NA_CORRECTION_RATE} /></span>
             </label>
-            <input
-              type="number"
-              value={desiredRate}
-              onChange={(e) => setDesiredRate(Number(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              placeholder="Ex: 0.5"
-              step="0.1"
-            />
+            <input type="number" value={correctionHours} onChange={(e)=> setCorrectionHours(Number(e.target.value))} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="Ex: 24" />
           </div>
         </div>
 
@@ -231,9 +262,12 @@ const SodiumCalculator: React.FC<SodiumCalculatorProps> = ({ className = '', pat
                 <div className="text-lg font-bold text-blue-900 dark:text-blue-100">
                   {calculateInfusionRate().toFixed(1)} mL/h
                 </div>
+                <div className="text-xs text-blue-800 dark:text-blue-300">Recipiente escolhido: {calcContainerMl()} mL</div>
               </div>
             </div>
           </div>
+
+          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">{SODIUM_REPLACEMENT_TABLE_CONTENT}</div>
 
           <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4">
             <h3 className="text-lg font-semibold text-yellow-900 dark:text-yellow-100 mb-3">
