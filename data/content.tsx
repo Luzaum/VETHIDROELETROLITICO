@@ -1012,6 +1012,12 @@ export const DISEASE_PROTOCOLS = [
         name: 'Acidose Metabólica Hiperclorêmica',
         electrolytes: ['Hipercloremia', 'Acidose', 'Bicarbonato baixo'],
         content: [
+            { type: 'header', content: '📝 Resumo rápido' },
+            { type: 'list', content: <>
+                <li><strong>O que é:</strong> Acidose metabólica com anion gap normal por <em>↑Cl⁻</em> (SID reduzido).</li>
+                <li><strong>Causas típicas:</strong> Diarreia severa (perda de HCO₃⁻), RTA, excesso de NaCl 0,9%.</li>
+                <li><strong>Conduta essencial:</strong> Trocar para cristaloide balanceado e tratar causa base; considerar HCO₃⁻ se grave.</li>
+            </> },
             { type: 'header', content: '🧪 Acidose Hiperclorêmica — fisiopatologia' },
             { type: 'paragraph', content: 'Aumento do Cl⁻ reduz o strong ion difference (SID) levando a acidose metabólica. Causas: diarreia intensa (perda de HCO₃⁻), RTA, excesso de NaCl 0,9%.' },
             { type: 'subheader', content: 'Diagnóstico' },
@@ -1031,6 +1037,12 @@ export const DISEASE_PROTOCOLS = [
         name: 'Alcalose Metabólica Hipoclorêmica',
         electrolytes: ['Hipocloremia', 'Alcalose'],
         content: [
+            { type: 'header', content: '📝 Resumo rápido' },
+            { type: 'list', content: <>
+                <li><strong>O que é:</strong> Alcalose metabólica por <em>↓Cl⁻</em> (perda de HCl) com retenção renal de HCO₃⁻.</li>
+                <li><strong>Causas típicas:</strong> Vômitos/obstrução pilórica, aspiração gástrica.</li>
+                <li><strong>Conduta essencial:</strong> Repor volume/Cl⁻ com NaCl 0,9% e tratar a causa.</li>
+            </> },
             { type: 'header', content: '🧪 Alcalose Hipoclorêmica — fisiopatologia' },
             { type: 'paragraph', content: 'Perda de HCl (vômitos/obstrução pilórica) causa alcalose metabólica e hipocloremia; reabsorção renal de HCO₃⁻ é favorecida.' },
             { type: 'subheader', content: 'Diagnóstico' },
@@ -1050,6 +1062,12 @@ export const DISEASE_PROTOCOLS = [
         name: 'Enteropatias Crônicas',
         electrolytes: ['Hipocloremia', 'Hipocalemia', 'Hipoproteinemia'],
         content: [
+            { type: 'header', content: '📝 Resumo rápido' },
+            { type: 'list', content: <>
+                <li><strong>O que é:</strong> Doenças intestinais crônicas com perdas/proteína e distúrbios eletrolíticos.</li>
+                <li><strong>Manifestações:</strong> Diarreia crônica, perda de peso, hipoalbuminemia, hipoCl⁻/hipoK⁺.</li>
+                <li><strong>Conduta essencial:</strong> Abordagem escalonada (dieta → antiparasitário → ATB de prova) e reposição dirigida.</li>
+            </> },
             { type: 'header', content: '🍽️ Enteropatias crônicas — visão geral' },
             { type: 'paragraph', content: 'Perdas GI crônicas levam a desequilíbrios eletrolíticos (Cl⁻/K⁺) e proteínas; risco de desidratação e acid–base alterado.' },
             { type: 'subheader', content: 'Diagnóstico' },
