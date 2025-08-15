@@ -107,7 +107,7 @@ const SodiumCalculator: React.FC<SodiumCalculatorProps> = ({ className = '', pat
   return (
     <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 ${className}`}>
       <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-        👑 Calculadora Prática de Sódio
+        🌊 Calculadora Prática de Sódio
       </h2>
       <p className="text-gray-600 dark:text-gray-400 mb-6">
         Parâmetros e limites vindos do seu consensos.json (agudo × crônico, TBW por espécie).
@@ -148,6 +148,8 @@ const SodiumCalculator: React.FC<SodiumCalculatorProps> = ({ className = '', pat
               <input type="number" value={correctionHours} onChange={(e)=> setCorrectionHours(Number(e.target.value))} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
             </div>
           </div>
+
+          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">{SODIUM_REPLACEMENT_TABLE_CONTENT}</div>
           {/* Espécie removida aqui: já definida em "Dados do Paciente" */}
 
           {/* Estado fisiológico e comorbidades removidos: já definidos em "Dados do Paciente" */}
@@ -208,13 +210,7 @@ const SodiumCalculator: React.FC<SodiumCalculatorProps> = ({ className = '', pat
             </select>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Duração da correção (h)
-              <span className="ml-1 align-middle"><InfoIcon content={TIP_NA_CORRECTION_RATE} /></span>
-            </label>
-            <input type="number" value={correctionHours} onChange={(e)=> setCorrectionHours(Number(e.target.value))} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="Ex: 24" />
-          </div>
+          {/* Duração já apresentada no bloco superior; tabela de sódio posicionada logo abaixo, conforme solicitado */}
         </div>
 
         {/* Results Section */}
@@ -267,7 +263,6 @@ const SodiumCalculator: React.FC<SodiumCalculatorProps> = ({ className = '', pat
             </div>
           </div>
 
-          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">{SODIUM_REPLACEMENT_TABLE_CONTENT}</div>
 
           <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4">
             <h3 className="text-lg font-semibold text-yellow-900 dark:text-yellow-100 mb-3">

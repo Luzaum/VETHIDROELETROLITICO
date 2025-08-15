@@ -8,6 +8,7 @@ import CalciumCalculator from '../components/CalciumCalculator';
 import { FluidCompatibilityChecker } from '../components/FluidCompatibilityChecker';
 import { applyModifiers, loadConsensos } from '../lib/rules';
 import { PatientContext } from '../lib/types';
+import HelpHint from '../components/HelpHint';
 
 const infusionTimeTooltipContent = (
     <div className="text-left">
@@ -160,6 +161,9 @@ export const CalculatorPage: React.FC = () => {
   const [hco3CurrentStr, setHco3CurrentStr] = useState<string>('8');
   const [hco3TargetStr, setHco3TargetStr] = useState<string>('15');
   const [hco3Vd, setHco3Vd] = useState<number>(0.3);
+  const [hco3Container, setHco3Container] = useState<string>('bolsa250');
+  const [hco3Diluent, setHco3Diluent] = useState<string>('NaCl 0.9%');
+  const [hco3TimeStr, setHco3TimeStr] = useState<string>('3');
   const hco3Calc = useMemo(() => {
     const w = patientInfo.weight || 0;
     const cur = Number(String(hco3CurrentStr).replace(',','.')) || 0;
@@ -168,8 +172,40 @@ export const CalculatorPage: React.FC = () => {
     const deficit_mEq = hco3Vd * w * (tgt - cur);
     const volumeMl = deficit_mEq;
     const initialMl = deficit_mEq * 0.5;
-    return { deficit_mEq, volumeMl, initialMl };
-  }, [patientInfo.weight, hco3CurrentStr, hco3TargetStr, hco3Vd]);
+    const timeH = Number(String(hco3TimeStr).replace(',','.')) || 0;
+    const rateMlH = timeH > 0 ? (initialMl / timeH) : 0;
+    const containerMl = mgContainerVolume(hco3Container) || 250;
+    return { deficit_mEq, volumeMl, initialMl, timeH, rateMlH, containerMl };
+  }, [patientInfo.weight, hco3CurrentStr, hco3TargetStr, hco3Vd, hco3TimeStr, hco3Container]);
+
+  // Glicose
+  const [gluMode, setGluMode] = useState<'bolus'|'cri'>('bolus');
+  const [gluContainer, setGluContainer] = useState<string>('seringa20');
+  const [gluTimeStr, setGluTimeStr] = useState<string>('4');
+  const [gluCRIConc, setGluCRIConc] = useState<number>(5);
+  const [gluBolusDoseMlKgStr, setGluBolusDoseMlKgStr] = useState<string>('0.5');
+  const gluContainerVolume = mgContainerVolume;
+  const gluCalcCRI = useMemo(() => {
+    if (gluMode !== 'cri') return null;
+    const v = gluContainerVolume(gluContainer) || 500;
+    const time = Number(String(gluTimeStr).replace(',','.')) || 0;
+    if (v <= 0 || time <= 0) return null;
+    const ml50 = (gluCRIConc / 50) * v;
+    const infusionRateMlH = v / time;
+    const centralWarning = gluCRIConc > 5;
+    return { v, time, ml50, infusionRateMlH, centralWarning };
+  }, [gluMode, gluContainer, gluTimeStr, gluCRIConc]);
+  const gluCalcBolus = useMemo(() => {
+    if (gluMode !== 'bolus') return null;
+    const w = patientInfo.weight || 0;
+    const dose = Number(String(gluBolusDoseMlKgStr).replace(',','.')) || 0;
+    if (w <= 0 || dose <= 0) return null;
+    const ml50 = dose * w;
+    const finalMl_at10pct = ml50 * (50/10); // 1:4 diluição p/ 10%
+    const suggestTimeMin = 3; // 2–5 min
+    const rateMlH = (finalMl_at10pct) / (suggestTimeMin/60);
+    return { ml50, finalMl_at10pct, suggestTimeMin, rateMlH };
+  }, [gluMode, gluBolusDoseMlKgStr, patientInfo.weight]);
 
   const [consensos, setConsensos] = useState<any | null>(null);
   const [consensoReady, setConsensoReady] = useState(false);
@@ -285,29 +321,31 @@ export const CalculatorPage: React.FC = () => {
             {electrolyte === 'magnesium' && (
                 <div className="space-y-4">
                     <div className="p-4 bg-blue-50 dark:bg-blue-900/40 rounded-lg">
-                        <h4 className="font-bold text-blue-800 dark:text-blue-200 mb-2">Calculadora de Magnésio (Mg²⁺)</h4>
+                        <h4 className="font-bold text-blue-800 dark:text-blue-200 mb-2">🧲 Calculadora de Magnésio (Mg²⁺)
+                          <span className="ml-2 align-middle"><HelpHint title="Quando/como repor Mg?">Repor MgSO₄ em hipomagnesemia clínica ou hipocalemia refratária. Bolus 0,15–0,3 mEq/kg em 10–20 min; CRI 0,75–1 mEq/kg/dia. Diluir em SF 0,9%/D5W. Evitar com NaHCO₃ na mesma linha.</HelpHint></span>
+                        </h4>
                         <p className="text-sm">Carregamento: 0,15–0,3 mEq/kg IV lento (10–20 min). Manutenção: 0,75–1,0 mEq/kg/dia.</p>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                            <label className="block font-medium mb-1">Modo</label>
+                            <label className="block font-medium mb-1">Modo <HelpHint title="Bolus vs CRI">Bolus em 10–20 min para correção rápida; CRI ao longo de 6–24 h para manutenção.</HelpHint></label>
                             <select className={inputClasses} value={mgMode} onChange={(e)=> setMgMode(e.target.value as any)}>
                                 <option value="bolus">Bolus</option>
                                 <option value="cri">CRI</option>
                             </select>
                         </div>
                         <div>
-                            <label className="block font-medium mb-1">Dose (mEq/kg)</label>
+                            <label className="block font-medium mb-1">Dose (mEq/kg) <HelpHint title="Quanto de Mg por mL?">MgSO₄ 50% ≈ 4 mEq/mL. Total necessário = dose × peso. Volume do sal = total/4.</HelpHint></label>
                             <input inputMode="decimal" pattern="[0-9]*[.,]?[0-9]*" value={mgDoseStr} onChange={(e)=> setMgDoseStr(e.target.value)} className={inputClasses} placeholder="Ex: 0,2" />
                         </div>
                         <div>
-                            <label className="block font-medium mb-1">Tempo (h)</label>
+                            <label className="block font-medium mb-1">Tempo (h) <HelpHint title="Taxa segura">Sugerir bolus em 0,17–0,33 h (10–20 min). Em CRI, distribuir 6–24 h conforme necessidade e comorbidades.</HelpHint></label>
                             <input inputMode="decimal" pattern="[0-9]*[.,]?[0-9]*" value={mgTimeStr} onChange={(e)=> setMgTimeStr(e.target.value)} className={inputClasses} placeholder="Ex: 0,25" />
                         </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                            <label className="block font-medium mb-1">Recipiente</label>
+                            <label className="block font-medium mb-1">Recipiente <HelpHint title="Seringa ou bolsa?">Use seringa 10/20/60 mL para bolus; bolsas 250/500/1000 mL para CRI.</HelpHint></label>
                             <select className={inputClasses} value={mgContainer} onChange={(e)=> setMgContainer(e.target.value)}>
                                 <option value="seringa10">Seringa 10 mL</option>
                                 <option value="seringa20">Seringa 20 mL</option>
@@ -318,7 +356,7 @@ export const CalculatorPage: React.FC = () => {
                             </select>
                         </div>
                         <div>
-                            <label className="block font-medium mb-1">Diluente</label>
+                            <label className="block font-medium mb-1">Diluente <HelpHint title="Compatibilidade">Diluir em SF 0,9% ou D5W. Evitar mistura com NaHCO₃ e cautela com soluções com Ca²⁺ (preferir via separada/flush).</HelpHint></label>
                             <select className={inputClasses} value={mgDiluent} onChange={(e)=> setMgDiluent(e.target.value)}>
                                 <option>NaCl 0.9%</option>
                                 <option>Dextrose 5%</option>
@@ -344,29 +382,31 @@ export const CalculatorPage: React.FC = () => {
             {electrolyte === 'phosphorus' && (
                 <div className="space-y-4">
                     <div className="p-4 bg-purple-50 dark:bg-purple-900/40 rounded-lg">
-                        <h4 className="font-bold text-purple-800 dark:text-purple-200 mb-2">Calculadora de Fósforo (P)</h4>
+                        <h4 className="font-bold text-purple-800 dark:text-purple-200 mb-2">🔥 Calculadora de Fósforo (P)
+                          <span className="ml-2 align-middle"><HelpHint title="Quando/como repor P?">Hipofosfatemia moderada/grave: 0,01–0,03 mmol/kg/h por 4–6 h. Preferir SF 0,9% ou D5W. Evitar LRS (contém Ca²⁺) por risco de precipitado Ca–fosfato.</HelpHint></span>
+                        </h4>
                         <p className="text-sm">Hipofosfatemia moderada/grave: 0,01–0,03 mmol/kg/h. Diluir em SF 0,9% ou D5W.</p>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                            <label className="block font-medium mb-1">Sal</label>
+                            <label className="block font-medium mb-1">Sal <HelpHint title="K-fos vs Na-fos">K-fosfato: 3 mmol P/mL e 4,4 mEq K/mL (contabilizar K na taxa total). Na-fos: 3 mmol P/mL e 4 mEq Na/mL.</HelpHint></label>
                             <select className={inputClasses} value={pSalt} onChange={(e)=> setPSalt(e.target.value as any)}>
                                 <option value="kphos">K-fosfato (3 mmol P/mL; 4,4 mEq K/mL)</option>
                                 <option value="naphos">Na-fosfato (3 mmol P/mL; 4 mEq Na/mL)</option>
                             </select>
                         </div>
                         <div>
-                            <label className="block font-medium mb-1">Dose (mmol/kg/h)</label>
+                            <label className="block font-medium mb-1">Dose (mmol/kg/h) <HelpHint title="Taxas típicas">Ajuste dentro de 0,01–0,03 mmol/kg/h e reavalie fósforo sérico a cada ciclo.</HelpHint></label>
                             <input inputMode="decimal" pattern="[0-9]*[.,]?[0-9]*" value={pDoseStr} onChange={(e)=> setPDoseStr(e.target.value)} className={inputClasses} placeholder="Ex: 0,02" />
                         </div>
                         <div>
-                            <label className="block font-medium mb-1">Tempo (h)</label>
+                            <label className="block font-medium mb-1">Tempo (h) <HelpHint title="Tempo recomendado">Ciclos de 4–6 horas, conforme resposta clínica e laboratorial.</HelpHint></label>
                             <input inputMode="decimal" pattern="[0-9]*[.,]?[0-9]*" value={pTimeStr} onChange={(e)=> setPTimeStr(e.target.value)} className={inputClasses} placeholder="Ex: 4" />
                         </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                            <label className="block font-medium mb-1">Recipiente</label>
+                            <label className="block font-medium mb-1">Recipiente <HelpHint title="Seringa ou bolsa?">Seringa 10/20/60 mL para pequenos volumes; bolsas 250/500/1000 mL para infusões mais longas.</HelpHint></label>
                             <select className={inputClasses} value={pContainer} onChange={(e)=> setPContainer(e.target.value)}>
                                 <option value="seringa10">Seringa 10 mL</option>
                                 <option value="seringa20">Seringa 20 mL</option>
@@ -377,7 +417,7 @@ export const CalculatorPage: React.FC = () => {
                             </select>
                         </div>
                         <div>
-                            <label className="block font-medium mb-1">Diluente</label>
+                            <label className="block font-medium mb-1">Diluente <HelpHint title="Compatibilidade">Preferir SF 0,9% ou D5W. <strong>Evitar LRS</strong> por conter Ca²⁺ (risco de precipitado Ca–fosfato).</HelpHint></label>
                             <select className={inputClasses} value={pDiluent} onChange={(e)=> setPDiluent(e.target.value)}>
                                 <option>NaCl 0.9%</option>
                                 <option>Dextrose 5%</option>
@@ -403,7 +443,9 @@ export const CalculatorPage: React.FC = () => {
             {electrolyte === 'bicarbonate' && (
                 <div className="space-y-4">
                     <div className="p-4 bg-green-50 dark:bg-green-900/40 rounded-lg">
-                        <h4 className="font-bold text-green-800 dark:text-green-200 mb-2">Calculadora de Bicarbonato (HCO₃⁻)</h4>
+                        <h4 className="font-bold text-green-800 dark:text-green-200 mb-2">🧂 Calculadora de Bicarbonato (HCO₃⁻)
+                          <span className="ml-2 align-middle"><HelpHint title="Quando/como usar NaHCO₃?">Usar em acidose metabólica grave (pH &lt; 7,1 ou HCO₃⁻ &lt; 10–12) após volume/correção de causa. Déficit = Vd × kg × (alvo − atual). Iniciar com ~50% em 2–4 h e reavaliar. Não misturar com soluções com Ca²⁺ (ex.: LRS).</HelpHint></span>
+                        </h4>
                         <p className="text-sm">Indicações: acidose metabólica grave (pH &lt; 7,1 ou HCO₃⁻ &lt; 10–12) após corrigir causas e volume.</p>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -416,13 +458,36 @@ export const CalculatorPage: React.FC = () => {
                             <input inputMode="decimal" pattern="[0-9]*[.,]?[0-9]*" value={hco3TargetStr} onChange={(e)=> setHco3TargetStr(e.target.value)} className={inputClasses} placeholder="Ex: 15" />
                         </div>
                         <div>
-                            <label className="block font-medium mb-1">Fator (Vd)</label>
-                            <select className={inputClasses} defaultValue="0.3">
+                            <label className="block font-medium mb-1">Fator (Vd) <HelpHint title="Vd 0,3–0,5">0,3 é padrão em vet; 0,5 pode ser usado em alguns cenários (ex.: Addison), sempre com reavaliação.</HelpHint></label>
+                            <select className={inputClasses} value={String(hco3Vd)} onChange={(e)=> setHco3Vd(Number(e.target.value))}>
                                 <option value="0.3">0,3 (padrão)</option>
                                 <option value="0.4">0,4</option>
                                 <option value="0.5">0,5</option>
                             </select>
                         </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block font-medium mb-1">Recipiente</label>
+                        <select className={inputClasses} value={hco3Container} onChange={(e)=> setHco3Container(e.target.value)}>
+                          <option value="seringa10">Seringa 10 mL</option>
+                          <option value="seringa20">Seringa 20 mL</option>
+                          <option value="seringa60">Seringa 60 mL</option>
+                          <option value="bolsa250">Bolsa 250 mL</option>
+                          <option value="bolsa500">Bolsa 500 mL</option>
+                          <option value="bolsa1000">Bolsa 1000 mL</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block font-medium mb-1">Diluente <HelpHint title="Compatibilidade">Preferir SF 0,9%. <strong>Evitar LRS</strong> (contém Ca²⁺) por risco de precipitado. Usar linha separada/flush.</HelpHint></label>
+                        <select className={inputClasses} value={hco3Diluent} onChange={(e)=> setHco3Diluent(e.target.value)}>
+                          <option>NaCl 0.9%</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block font-medium mb-1">Tempo para dose inicial (h) <HelpHint title="50% do déficit em 2–4 h">Administre ~50% do déficit em 2–4 h e reavalie gasometria antes de seguir.</HelpHint></label>
+                        <input inputMode="decimal" pattern="[0-9]*[.,]?[0-9]*" value={hco3TimeStr} onChange={(e)=> setHco3TimeStr(e.target.value)} className={inputClasses} placeholder="Ex: 3" />
+                      </div>
                     </div>
                     <div className="p-4 bg-orange-50 dark:bg-orange-900/40 rounded-lg">
                         <h5 className="font-bold text-orange-800 dark:text-orange-200">Como calcular e administrar:</h5>
@@ -432,7 +497,8 @@ export const CalculatorPage: React.FC = () => {
                     </div>
                     {hco3Calc && (
                       <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                        <div className="text-sm">Déficit: <strong>{hco3Calc.deficit_mEq.toFixed(1)} mEq</strong> → Volume total 8,4%: <strong>{hco3Calc.volumeMl.toFixed(1)} mL</strong>. Inicial: <strong>{hco3Calc.initialMl.toFixed(1)} mL</strong> em 2–4 h.</div>
+                        <div className="text-sm">Déficit: <strong>{hco3Calc.deficit_mEq.toFixed(1)} mEq</strong> → Volume total 8,4%: <strong>{hco3Calc.volumeMl.toFixed(1)} mL</strong>. Inicial: <strong>{hco3Calc.initialMl.toFixed(1)} mL</strong>.</div>
+                        <div className="text-sm mt-1">Recipiente selecionado: <strong>{hco3Calc.containerMl} mL</strong> • Tempo: <strong>{hco3Calc.timeH.toFixed(1)} h</strong> • Taxa: <strong>{hco3Calc.rateMlH.toFixed(1)} mL/h</strong>.</div>
                       </div>
                     )}
                 </div>
@@ -441,7 +507,9 @@ export const CalculatorPage: React.FC = () => {
             {electrolyte === 'glucose' && (
                 <div className="space-y-4">
                     <div className="p-4 bg-amber-50 dark:bg-amber-900/40 rounded-lg">
-                        <h4 className="font-bold text-amber-800 dark:text-amber-200 mb-2">Calculadora de Glicemia</h4>
+                        <h4 className="font-bold text-amber-800 dark:text-amber-200 mb-2">🍪 Calculadora de Glicemia
+                          <span className="ml-2 align-middle"><HelpHint title="Bolus e CRI de dextrose">Bolus de resgate: 0,5–1 mL/kg de dextrose 50% diluída para ≤10% (ex.: 1:4) em 2–5 min. CRI: 2,5–5% (até 10% se necessário, preferir via central). Monitorar glicemia q 2–4 h.</HelpHint></span>
+                        </h4>
                         <p className="text-sm">Valores de referência: Cães 68-104 mg/dL, Gatos 71-182 mg/dL</p>
                         <p className="text-sm mt-1"><strong>Filhotes:</strong> Valores inferiores, reservas limitadas</p>
                     </div>
@@ -452,13 +520,65 @@ export const CalculatorPage: React.FC = () => {
                         </div>
                         <div>
                             <label className="block font-medium mb-1">Situação</label>
-                            <select className={inputClasses}>
+                            <select className={inputClasses} value={gluMode} onChange={(e)=> setGluMode(e.target.value as any)}>
                                 <option value="hypoglycemia">Hipoglicemia (&lt; 60 mg/dL)</option>
                                 <option value="hyperglycemia">Hiperglicemia (&gt; 180 mg/dL)</option>
                                 <option value="dka">Cetoacidose Diabética</option>
                             </select>
                         </div>
                     </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block font-medium mb-1">Modo</label>
+                        <select className={inputClasses} value={gluMode} onChange={(e)=> setGluMode(e.target.value as any)}>
+                          <option value="bolus">Bolus</option>
+                          <option value="cri">CRI</option>
+                        </select>
+                      </div>
+                      {gluMode === 'bolus' ? (
+                        <div>
+                          <label className="block font-medium mb-1">Dose 50% (mL/kg) <HelpHint title="Diluir para ≤10%">Para atingir ≤10%, diluir 1:4 (ex.: 1 mL de 50% + 4 mL de SF).</HelpHint></label>
+                          <input className={inputClasses} inputMode="decimal" pattern="[0-9]*[.,]?[0-9]*" value={gluBolusDoseMlKgStr} onChange={(e)=> setGluBolusDoseMlKgStr(e.target.value)} placeholder="0,5–1" />
+                        </div>
+                      ) : (
+                        <div>
+                          <label className="block font-medium mb-1">Concentração alvo (CRI) % <HelpHint title="Via central se &gt;5–10%">Acima de 5–10%, preferir acesso venoso central.</HelpHint></label>
+                          <select className={inputClasses} value={String(gluCRIConc)} onChange={(e)=> setGluCRIConc(Number(e.target.value))}>
+                            <option value="2.5">2,5%</option>
+                            <option value="5">5%</option>
+                            <option value="10">10%</option>
+                          </select>
+                        </div>
+                      )}
+                      <div>
+                        <label className="block font-medium mb-1">Recipiente</label>
+                        <select className={inputClasses} value={gluContainer} onChange={(e)=> setGluContainer(e.target.value)}>
+                          <option value="seringa10">Seringa 10 mL</option>
+                          <option value="seringa20">Seringa 20 mL</option>
+                          <option value="seringa60">Seringa 60 mL</option>
+                          <option value="bolsa250">Bolsa 250 mL</option>
+                          <option value="bolsa500">Bolsa 500 mL</option>
+                          <option value="bolsa1000">Bolsa 1000 mL</option>
+                        </select>
+                      </div>
+                      {gluMode === 'cri' && (
+                        <div>
+                          <label className="block font-medium mb-1">Tempo (h)</label>
+                          <input className={inputClasses} inputMode="decimal" pattern="[0-9]*[.,]?[0-9]*" value={gluTimeStr} onChange={(e)=> setGluTimeStr(e.target.value)} placeholder="Ex: 4" />
+                        </div>
+                      )}
+                    </div>
+                    {gluMode === 'cri' && gluCalcCRI && (
+                      <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+                        <div className="text-sm">Para preparar <strong>{gluCRIConc}%</strong> em <strong>{gluCalcCRI.v} mL</strong>, adicionar <strong>{gluCalcCRI.ml50.toFixed(1)} mL</strong> de dextrose 50% e completar com diluente. Taxa: <strong>{gluCalcCRI.infusionRateMlH.toFixed(1)} mL/h</strong>.</div>
+                        {gluCalcCRI.centralWarning && <div className="text-xs text-red-600 dark:text-red-400 mt-1">Sugestão: preferir via central se &gt; 5–10%.</div>}
+                      </div>
+                    )}
+                    {gluMode === 'bolus' && gluCalcBolus && (
+                      <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+                        <div className="text-sm">Bolus 50%: <strong>{gluCalcBolus.ml50.toFixed(1)} mL</strong>. Diluir para ≤10% (1:4) → <strong>{gluCalcBolus.finalMl_at10pct.toFixed(1)} mL</strong> em ~<strong>{gluCalcBolus.suggestTimeMin} min</strong> (taxa ≈ <strong>{gluCalcBolus.rateMlH.toFixed(1)} mL/h</strong>).</div>
+                      </div>
+                    )}
                     <div className="p-4 bg-red-50 dark:bg-red-900/40 rounded-lg">
                         <h5 className="font-bold text-red-800 dark:text-red-200">🚨 Tratamento de Emergência:</h5>
                         <p className="text-sm mt-1"><strong>Hipoglicemia:</strong> Dextrose 50% 0.5-1 mL/kg diluída 1:2 IV</p>
