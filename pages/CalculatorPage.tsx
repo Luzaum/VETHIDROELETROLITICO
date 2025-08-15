@@ -356,7 +356,7 @@ export const CalculatorPage: React.FC = () => {
                       </div>
                     )}
                     <div className="p-4 bg-yellow-50 dark:bg-yellow-900/40 rounded-lg text-sm">
-                        Compatibilidade: MgSO₄ é incompatível com bicarbonato; atenção com soluções com cálcio — preferir linha separada/flush. Taxa de bolus 10–20 min; CRI dividir em 24 h. Referências: DiBartola; BSAVA.
+                        Compatibilidade: MgSO₄ é incompatível com bicarbonato; atenção com soluções com cálcio — preferir linha separada/flush. Taxa de bolus 10–20 min; CRI 6–24 h. <em>Fontes: BSAVA (Magnésio); DiBartola.</em>
                     </div>
                 </div>
             )}
@@ -414,7 +414,7 @@ export const CalculatorPage: React.FC = () => {
                       </div>
                     )}
                     <div className="p-4 bg-red-50 dark:bg-red-900/40 rounded-lg text-sm">
-                        K-Phos: 3 mmol P/mL; 4,4 mEq K/mL. Some a carga de K à taxa total de K⁺ para respeitar o teto de 0,5 mEq/kg/h. Referências: DiBartola; BSAVA.
+                        K-Phos: 3 mmol P/mL; 4,4 mEq K/mL. Some a carga de K à taxa total de K⁺ para respeitar o teto de 0,5 mEq/kg/h. <em>Fontes: DiBartola (Fósforo); BSAVA (DKA/realimentação).</em>
                     </div>
                 </div>
             )}

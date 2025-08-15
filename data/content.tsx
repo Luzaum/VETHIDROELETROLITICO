@@ -37,6 +37,82 @@ export const POTASSIUM_REPLACEMENT_TABLE_CONTENT = (
     </div>
   );
 
+export const MAGNESIUM_REPLACEMENT_TABLE_CONTENT = (
+  <div className="text-left">
+    <p className="font-bold mb-2">Tabela prática de reposição de Magnésio (MgSO₄ 50%)</p>
+    <table className="w-full text-xs border-collapse">
+      <thead className="bg-gray-700 text-white">
+        <tr>
+          <th className="border border-gray-600 p-1">Cenário</th>
+          <th className="border border-gray-600 p-1">Dose</th>
+          <th className="border border-gray-600 p-1">Tempo</th>
+          <th className="border border-gray-600 p-1">Observações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td className="border border-gray-600 p-1">Bolus (hipomagnesemia sintomática)</td>
+          <td className="border border-gray-600 p-1">0,15–0,30 mEq/kg</td>
+          <td className="border border-gray-600 p-1">10–20 min</td>
+          <td className="border border-gray-600 p-1">ECG; atenção a IR</td>
+        </tr>
+        <tr>
+          <td className="border border-gray-600 p-1">CRI (manutenção)</td>
+          <td className="border border-gray-600 p-1">0,75–1,0 mEq/kg/dia</td>
+          <td className="border border-gray-600 p-1">6–24 h</td>
+          <td className="border border-gray-600 p-1">Reavaliar Mg²⁺/K⁺</td>
+        </tr>
+        <tr>
+          <td className="border border-gray-600 p-1">DKA/hipocalemia refratária</td>
+          <td className="border border-gray-600 p-1">até 1,0 mEq/kg/dia</td>
+          <td className="border border-gray-600 p-1">CRI 6–24 h</td>
+          <td className="border border-gray-600 p-1">Corrigir K⁺ junto</td>
+        </tr>
+      </tbody>
+    </table>
+    <p className="text-xs mt-2">Conversão: MgSO₄ 50% ≈ 4 mEq/mL. Diluir em SF 0,9% ou D5W. Incompatível com bicarbonato.</p>
+    <p className="text-xs mt-1 italic">Fonte: BSAVA – Distúrbios do Magnésio; DiBartola – capítulos de eletrólitos.</p>
+  </div>
+);
+
+export const PHOSPHATE_REPLACEMENT_TABLE_CONTENT = (
+  <div className="text-left">
+    <p className="font-bold mb-2">Tabela prática de reposição de Fósforo (K-Phos/Na-Phos)</p>
+    <table className="w-full text-xs border-collapse">
+      <thead className="bg-gray-700 text-white">
+        <tr>
+          <th className="border border-gray-600 p-1">Gravidade (P sérico)</th>
+          <th className="border border-gray-600 p-1">Taxa alvo (mmol/kg/h)</th>
+          <th className="border border-gray-600 p-1">Duração típica</th>
+          <th className="border border-gray-600 p-1">Notas</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td className="border border-gray-600 p-1">Leve (2,0–2,5 mg/dL)</td>
+          <td className="border border-gray-600 p-1">0,01</td>
+          <td className="border border-gray-600 p-1">4–6 h</td>
+          <td className="border border-gray-600 p-1">Reavaliar P</td>
+        </tr>
+        <tr>
+          <td className="border border-gray-600 p-1">Moderada (1,5–2,0 mg/dL)</td>
+          <td className="border border-gray-600 p-1">0,02</td>
+          <td className="border border-gray-600 p-1">4–6 h</td>
+          <td className="border border-gray-600 p-1">Preferir NaCl 0,9%/D5W</td>
+        </tr>
+        <tr>
+          <td className="border border-gray-600 p-1">Grave (&lt; 1,5 mg/dL)</td>
+          <td className="border border-gray-600 p-1">0,03 (máx. 0,12)</td>
+          <td className="border border-gray-600 p-1">4–6 h</td>
+          <td className="border border-gray-600 p-1">Evitar fluidos com Ca²⁺ (LRS)</td>
+        </tr>
+      </tbody>
+    </table>
+    <p className="text-xs mt-2">K-Phos: 3 mmol P/mL e 4,4 mEq K⁺/mL (contabilizar no teto de 0,5 mEq/kg/h). Na-Phos: 3 mmol P/mL e ~4 mEq Na⁺/mL.</p>
+    <p className="text-xs mt-1 italic">Fonte: DiBartola – Distúrbios do Fósforo; BSAVA – protocolos de DKA/realimentação.</p>
+  </div>
+);
+
 const SODIUM_DATA: ElectrolyteData = {
     id: 'sodio',
     name: "Sódio (Na⁺)",

@@ -12,7 +12,7 @@ export const TIP_K_IV_LIMITS = (
 	<div className="text-left space-y-2">
 		<p><strong>Segurança:</strong> não exceder <strong>0,5 mEq/kg/h</strong> de K⁺ IV. Em hipocalemia grave, considerar até 1,0 mEq/kg/h com <strong>ECG contínuo</strong>.</p>
 		<p>Prefira ≤ 60 mEq/L em acesso periférico para evitar flebite. Concentração de KCl 19,1% ≈ 2,56 mEq/mL.</p>
-		<p><em>Nelson & Couto; BSAVA – Fluids; Plumb’s – KCl injetável.</em></p>
+		<p><em>Fontes: BSAVA Manual (Fluids/Acid–Base); DiBartola (Cap. Potássio); Plumb’s (KCl injetável).</em></p>
 	</div>
 );
 
@@ -20,7 +20,7 @@ export const TIP_K_DILUTION = (
 	<div className="text-left space-y-2">
 		<p><strong>Diluição passo a passo:</strong> mL de KCl a adicionar = mEq desejados ÷ 2,56 (mEq/mL).</p>
 		<p>Ex.: 40 mEq/L em 1000 mL → 15,6 mL de KCl 19,1% (agitar vigorosamente a bolsa).</p>
-		<p><em>Plumb’s – KCl; DiBartola – tabelas práticas.</em></p>
+		<p><em>Fontes: DiBartola (tabelas práticas de K⁺); Plumb’s – KCl.</em></p>
 	</div>
 );
 
@@ -28,14 +28,14 @@ export const TIP_NA_CORRECTION_RATE = (
 	<div className="text-left space-y-2">
 		<p><strong>Meta de segurança:</strong> ≤ 0,5 mEq/L/h e ≤ 10–12 mEq/L/24h (hiponatremia crônica). Hipernatremia: mesma limitação de queda.</p>
 		<p>Use TBW: cão 0,6×kg; gato 0,5–0,6×kg. Calcule déficit de água livre e fraccione em 24–48 h.</p>
-		<p><em>BSAVA – Distúrbios do Sódio; DiBartola – Água/Na⁺.</em></p>
+		<p><em>Fontes: BSAVA – Distúrbios do Sódio; DiBartola – Água/Na⁺.</em></p>
 	</div>
 );
 
 export const TIP_HCO3_FORMULA = (
 	<div className="text-left space-y-2">
 		<p><strong>Déficit de HCO₃⁻ (mEq):</strong> 0,3–0,4 × peso(kg) × (HCO₃⁻ alvo − medido). Repor 1/3–1/2 e reavaliar (gasometria).</p>
-		<p><em>Nelson & Couto – Acidose; DiBartola – Acid–Base.</em></p>
+		<p><em>Fontes: DiBartola – Acid–Base; Nelson & Couto – Acidose.</em></p>
 	</div>
 );
 
