@@ -161,9 +161,7 @@ const PotassiumCalculator: React.FC<PotassiumCalculatorProps> = ({ className = '
               <input type="number" value={infusionTimeHours} onChange={(e)=> setInfusionTimeHours(Number(e.target.value))} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="Ex: 8" />
             </div>
           </div>
-          <div>
-            <HelpPopover ariaLabel="Tabela ACVIM de reposição de K+">{POTASSIUM_REPLACEMENT_TABLE_CONTENT}</HelpPopover>
-          </div>
+          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">{POTASSIUM_REPLACEMENT_TABLE_CONTENT}</div>
         </div>
 
         {/* Results Section */}

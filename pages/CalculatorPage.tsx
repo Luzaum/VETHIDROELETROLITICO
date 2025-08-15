@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { PatientInfo, Species, PhysiologicalState, Comorbidity } from '../types';
 import { InfoIcon } from '../components/Tooltip';
-import HelpPopover from '../components/HelpPopover';
 import { POTASSIUM_REPLACEMENT_TABLE_CONTENT, MAGNESIUM_REPLACEMENT_TABLE_CONTENT, PHOSPHATE_REPLACEMENT_TABLE_CONTENT } from '../data/content';
 import SodiumCalculator from '../components/SodiumCalculator';
 import PotassiumCalculator from '../components/PotassiumCalculator';
